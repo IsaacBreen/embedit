@@ -1,4 +1,4 @@
-from emtool.structures.text_file import TextFile, TextFileFragment
+from emedit.structures.text_file import TextFile, TextFileFragment
 
 
 def split_file(file: TextFile, *, fragment_lines: int = 10, ignore_empty: bool = True) -> list[TextFileFragment]:

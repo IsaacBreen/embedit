@@ -1,21 +1,21 @@
-# emtool
+# emedit
 
-`emtool` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
+`emedit` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
 
 ## Installation
 
-Install `emtool` using `pip`:
+Install `emedit` using `pip`:
 
 ```bash
-pip install emtool
+pip install emedit
 ```
 
 ## Usage
 
-To use `emtool`, run the following command and specify your search query and the list of text files you want to search:
+To use `emedit`, run the following command and specify your search query and the list of text files you want to search:
 
 ```bash
-emtool search "search query" file1.txt file2.txt ...
+emedit search "search query" file1.txt file2.txt ...
 ```
 You can also specify the following optional arguments:
 
@@ -31,14 +31,14 @@ You can also specify the following optional arguments:
 Here is an example of a search for the query "machine learning" in a set of text files:
 
 ```bash
-emtool search "machine learning" file1.txt file2.txt file3.txt
+emedit search "machine learning" file1.txt file2.txt file3.txt
 This will display the top 3 results for the search, ranked in descending order by similarity score.
 ```
 
 You can also specify a different number of top results to display using the `--top-n` argument:
 
 ```bash
-emtool search "machine learning" file1.txt file2.txt file3.txt --top-n 5
+emedit search "machine learning" file1.txt file2.txt file3.txt --top-n 5
 ```
 
 This will display the top 5 results for the search.
@@ -46,7 +46,7 @@ This will display the top 5 results for the search.
 You can also specify a different order for the results using the `--order` argument:
 
 ```bash
-emtool search "machine learning" file1.txt file2.txt file3.txt --order ascending
+emedit search "machine learning" file1.txt file2.txt file3.txt --order ascending
 ```
 
 This will display the results in ascending order by similarity score.
@@ -54,7 +54,7 @@ This will display the results in ascending order by similarity score.
 Finally, you can specify a similarity threshold to filter out results below a certain similarity score using the `--threshold` argument:
 
 ```bash
-emtool search "machine learning" file1.txt file2.txt file3.txt --threshold 0.5
+emedit search "machine learning" file1.txt file2.txt file3.txt --threshold 0.5
 ```
 
 This will only display results with a similarity score greater than or equal to 0.5.
@@ -65,15 +65,15 @@ This will only display results with a similarity score greater than or equal to 
 You can lso use wildcards to specify a pattern of files to search in. Here's an example of how you can use the `**` wildcard to search for Python files in all directories in the current directory and its subdirectories:
 
 ```bash
-emtool search "query" **/*.py
+emedit search "query" **/*.py
 ```
 
 Bear in mind that the behavior of the `*` and `**` wildcards may vary depending on your operating system and the terminal shell you're using.
 
 ## Contributing
 
-If you find a bug or want to contribute to the development of `emtool`, you can create a new issue or submit a pull request.
+If you find a bug or want to contribute to the development of `emedit`, you can create a new issue or submit a pull request.
 
 ## License
 
-`emtool` is released under the MIT license. Do whatever you want with it.
+`emedit` is released under the MIT license. Do whatever you want with it.

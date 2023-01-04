@@ -6,11 +6,11 @@ from delegatefn import delegate
 from rich.console import Console
 from rich.syntax import Syntax
 
-from emtool.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
+from emedit.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
 
 console = Console()
 
-from emtool.behaviour.pipelines import semantic_search
+from emedit.behaviour.pipelines import semantic_search
 
 
 def center_pad(text: str, width: int, *, fillchar: str = " ") -> str:
@@ -25,7 +25,7 @@ def center_pad(text: str, width: int, *, fillchar: str = " ") -> str:
 def search(query: str, *files: str, order: Literal["ascending", "descending"] = "ascending", **kwargs):
     """a command line tool for semantic file search
 
-    `emtool` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
+    `emedit` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
 
     :param query: The search query string.
     :param files: One or more text files to search.

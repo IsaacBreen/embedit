@@ -2,9 +2,9 @@ import numpy as np
 import openai
 from tenacity import wait_random_exponential, stop_after_attempt, retry
 
-from emtool.structures.embedding import EmbeddedTextFileFragment, EmbeddedText, \
+from emedit.structures.embedding import EmbeddedTextFileFragment, EmbeddedText, \
     EmbeddedTextFileFragmentSimilarityResult
-from emtool.structures.text_file import TextFileFragment
+from emedit.structures.text_file import TextFileFragment
 
 
 @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))

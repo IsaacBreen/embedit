@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "emtool"
+name = "emedit"
 version = "0.1.1"
 description = ""
 authors = ["IsaacBreen <mail@isaacbreen.com>"]
@@ -17,4 +17,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-emtool = "emtool.cli:main"
+emedit = "emedit.cli:main"

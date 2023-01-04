@@ -1,9 +1,9 @@
 from delegatefn import delegate
 
-from emtool.behaviour.pipeline_components.a01_gather import gather
-from emtool.behaviour.pipeline_components.a02_split import split_file
-from emtool.behaviour.pipeline_components.a03_process.search import embed_text, find_similar_fragments, embed_fragments
-from emtool.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
+from emedit.behaviour.pipeline_components.a01_gather import gather
+from emedit.behaviour.pipeline_components.a02_split import split_file
+from emedit.behaviour.pipeline_components.a03_process.search import embed_text, find_similar_fragments, embed_fragments
+from emedit.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
 
 
 @delegate(find_similar_fragments, ignore=["embedded_text", "embedded_fragments", "verbosity"])

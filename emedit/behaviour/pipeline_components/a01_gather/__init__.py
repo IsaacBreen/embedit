@@ -1,6 +1,6 @@
 import pathlib
 
-from emtool.structures.text_file import TextFile
+from emedit.structures.text_file import TextFile
 
 
 def gather(*files: str, ignore_empty: bool = True) -> list[TextFile]:
