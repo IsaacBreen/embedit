@@ -1,5 +1,6 @@
+from attrs import define
+
 from .text_file import TextFileFragment
-from attrs import define, field
 
 
 @define(frozen=True)

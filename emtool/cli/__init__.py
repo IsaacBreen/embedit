@@ -1,8 +1,7 @@
+import pathlib
 from typing import Literal
 
 import fire
-import pathlib
-
 from delegatefn import delegate
 from rich.console import Console
 from rich.syntax import Syntax
@@ -49,8 +48,15 @@ def search(query: str, *files: str, order: Literal["ascending", "descending"] = 
         console.print(f"Similarity: {result.similarity:.2f}")
         console.print(f"Path: {result.embedded_fragment.fragment.path}")
         # Print the result contents with appropriate highlighting
-        lexer: str = Syntax.guess_lexer(result.embedded_fragment.fragment.path, result.embedded_fragment.fragment.contents)
-        console.print(Syntax(result.embedded_fragment.fragment.contents, lexer, theme="monokai", line_numbers=True, start_line=result.embedded_fragment.fragment.start_line))
+        lexer: str = Syntax.guess_lexer(
+            result.embedded_fragment.fragment.path, result.embedded_fragment.fragment.contents
+        )
+        console.print(
+            Syntax(
+                result.embedded_fragment.fragment.contents, lexer, theme="monokai", line_numbers=True,
+                start_line=result.embedded_fragment.fragment.start_line
+            )
+        )
         # console.print(center_pad("End of result", width=80, fillchar="-"), style="bold")
         console.print()
 

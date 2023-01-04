@@ -1,5 +1,7 @@
 import pathlib
-from emtool.structures.text_file import TextFile, TextFileFragment
+
+from emtool.structures.text_file import TextFile
+
 
 def gather(*files: str) -> list[TextFile]:
     # Gather the files into a list of TextFile objects

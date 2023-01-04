@@ -9,7 +9,6 @@ from emtool.structures.text_file import TextFileFragment
 
 @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
 def get_embedding(text: str, engine="text-embedding-ada-002") -> list[float]:
-
     # replace newlines, which can negatively affect performance.
     text = text.replace("\n", " ")
 
@@ -49,7 +48,8 @@ def embed_text(text: str) -> EmbeddedText:
 
 
 def find_similar_fragments(
-    embedded_text: str, embedded_fragments: list[EmbeddedTextFileFragment], *, threshold: float = 0.0, top_n: int = 3, verbosity: int = 1
+    embedded_text: str, embedded_fragments: list[EmbeddedTextFileFragment], *, threshold: float = 0.0, top_n: int = 3,
+    verbosity: int = 1
 ) -> list[EmbeddedTextFileFragmentSimilarityResult]:
     if verbosity > 0:
         print("Finding similar fragments from a list of", len(embedded_fragments), "fragments.")
@@ -57,7 +57,10 @@ def find_similar_fragments(
     embedding = embedded_text.embedding
     # Find the most similar fragments
     similarities = [cosine_similarity(embedding, fragment.embedding) for fragment in embedded_fragments]
-    print(f"Similarity statistics: min={min(similarities):.3f}, max={max(similarities):.3f}, mean={np.mean(similarities):.3f}, median={np.median(similarities):.3f}, std={np.std(similarities):.3f}")
+    print(
+        f"Similarity statistics: min={min(similarities):.3f}, max={max(similarities):.3f}, mean={np.mean(similarities):.3f}, median={np.median(similarities):.3f}, std={np.std(similarities):.3f}"
+    )
     # Return the most similar fragments
-    return [EmbeddedTextFileFragmentSimilarityResult(embedded_fragment=fragment, similarity=similarity) for fragment, similarity in
+    return [EmbeddedTextFileFragmentSimilarityResult(embedded_fragment=fragment, similarity=similarity) for
+        fragment, similarity in
         zip(embedded_fragments, similarities) if similarity >= threshold][:top_n]

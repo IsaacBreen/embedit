@@ -1,4 +1,4 @@
-from attrs import define, field
+from attrs import define
 
 
 @define(frozen=True)
