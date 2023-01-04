@@ -56,6 +56,17 @@ emtool search "machine learning" file1.txt file2.txt file3.txt --threshold 0.5
 
 This will only display results with a similarity score greater than or equal to 0.5.
 
+### Wildcards
+ 
+
+You can lso use wildcards to specify a pattern of files to search in. Here's an example of how you can use the `**` wildcard to search for Python files in all directories in the current directory and its subdirectories:
+
+```bash
+emtool search "query" **/*.py
+```
+
+Bear in mind that the behavior of the `*` and `**` wildcards may vary depending on your operating system and the terminal shell you're using.
+
 ## Contributing
 
 If you find a bug or want to contribute to the development of `emtool`, you can create a new issue or submit a pull request.
