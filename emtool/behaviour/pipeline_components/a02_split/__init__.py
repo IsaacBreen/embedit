@@ -1,10 +1,10 @@
 from emtool.structures.text_file import TextFile, TextFileFragment
 
 
-def split_file(file: TextFile, fragment_lines: int = 10) -> list[TextFileFragment]:
+def split_file(file: TextFile, *, fragment_lines: int = 10, ignore_empty: bool = True) -> list[TextFileFragment]:
     # Split the file into fragments
     contents = file.contents.splitlines()
-    return [
+    fragments = [
         TextFileFragment(
             path=file.path,
             contents="\n".join(contents[i: i + fragment_lines]),
@@ -12,3 +12,6 @@ def split_file(file: TextFile, fragment_lines: int = 10) -> list[TextFileFragmen
         )
         for i in range(0, len(contents), fragment_lines)
     ]
+    if ignore_empty:
+        fragments = [fragment for fragment in fragments if fragment.contents]
+    return fragments

@@ -8,13 +8,14 @@ from emtool.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
 
 @delegate(find_similar_fragments, ignore=["embedded_text", "embedded_fragments", "verbosity"])
 def semantic_search(
-    query: str, *files: str, verbosity: int = 1, fragment_lines: int = 1, **kwargs
+    query: str, *files: str, verbosity: int = 1, fragment_lines: int = 10, min_fragment_lines: int = 0, **kwargs
 ) -> list[EmbeddedTextFileFragmentSimilarityResult]:
     assert len(files) > 0, "No files were provided"
     # Gather the files
     files = gather(*files)
     # Split the files
-    fragments = [fragment for file in files for fragment in split_file(file, fragment_lines=1)]
+    fragments = [fragment for file in files for fragment in split_file(file, fragment_lines=fragment_lines)]
+    fragments = [fragment for fragment in fragments if len(fragment.contents.splitlines()) >= min_fragment_lines]
     if verbosity > 0:
         print(f"Embedding {len(fragments)} fragments")
     # Embed the fragments
