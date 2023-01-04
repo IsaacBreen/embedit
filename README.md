@@ -1,57 +1,65 @@
 # emtool
 
-`emtool` is a command-line tool that uses OpenAI's embedding API to 
+`emtool` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
 
 ## Installation
 
-`emtool` requires Python 3.11 or higher.
-
-Install the package and its dependencies using [Poetry](https://python-poetry.org/):
+Install `emtool` using `pip`:
 
 ```bash
-poetry install
+pip install emtool
 ```
 
 ## Usage
 
-To search for semantic similarity between a query and a set of text files, run the `emtool` command followed by the query and the paths to the text files.
+To use `emtool`, run the following command and specify your search query and the list of text files you want to search:
 
 ```bash
-emtool "search query" file1.txt file2.txt /path/to/dir
+emtool search "search query" file1.txt file2.txt ...
+You can also specify the following optional arguments:
+
+`--order`: the order in which the results should be displayed (ascending or descending by similarity score). Default: `ascending`.
+`--top-n`: the number of top results to display. Default: `3`.
+`--threshold`: a similarity threshold below which results should be filtered out. Default: `0.0`.
 ```
 
-Directories can also be provided as arguments, but they will be ignored.
+## Examples
 
-### Options
-
-- `--order`: The order in which to sort the results. Can be either "ascending" or "descending" (default is "ascending").
-- `--top_n`: The number of top results to display (default is 3).
-- `--threshold`: The minimum similarity score for a result to be displayed (default is 0.0).
-
-## Example
+Here is an example of a search for the query "machine learning" in a set of text files:
 
 ```bash
-emtool "search query" file1.txt file2.txt --order=descending --top_n=5 --threshold=0.5
+emtool search "machine learning" file1.txt file2.txt file3.txt
+This will display the top 3 results for the search, ranked in descending order by similarity score.
 ```
 
-This will search for the query "search query" in `file1.txt` and `file2.txt`, and display the top 5 results with a similarity score greater than or equal to 0.5, sorted in descending order by similarity score.
-
-To use the 'emtool' script, you will need to provide the query and at least one text file to search in. The script will then use the 'semantic_search' function to find the most semantically similar fragments within the provided text files. The results will be sorted in either ascending or descending order (based on the 'order' argument, which has a default value of '"ascending"'), and the top `n` results will be displayed (based on the `top_n` argument, which has a default value of `3`). A similarity threshold can also be set with the `threshold` argument (default is `0.0`), which filters out results with a lower similarity score.
-
-The results will be printed to the console, along with the similarity score and file path for each result. The contents of the result will also be highlighted with appropriate syntax highlighting.
-
-For example, running the following command:
+You can also specify a different number of top results to display using the `--top-n` argument:
 
 ```bash
-emtool "search query" file1.txt file2.txt --order=descending --top_n=5 --threshold=0.5
+emtool search "machine learning" file1.txt file2.txt file3.txt --top-n 5
 ```
 
-Will search for the query "search query" in file1.txt and file2.txt, and display the top 5 results with a similarity score greater than or equal to 0.5, sorted in descending order by similarity score.
+This will display the top 5 results for the search.
 
-Dependencies
+You can also specify a different order for the results using the `--order` argument:
 
-`emtool` is built on top of the following libraries:
+```bash
+emtool search "machine learning" file1.txt file2.txt file3.txt --order ascending
+```
 
-- [openai](https://github.com/openai/openai)
-- [delegatefn](https://github.com/isaacbreen/delegatefn
-- [rich](https://github.com/willmcgugan/rich)
+This will display the results in ascending order by similarity score.
+
+Finally, you can specify a similarity threshold to filter out results below a certain similarity score using the `--threshold` argument:
+
+```bash
+emtool search "machine learning" file1.txt file2.txt file3.txt --threshold 0.5
+```
+
+This will only display results with a similarity score greater than or equal to 0.5.
+
+## Contributing
+
+If you find a bug or want to contribute to the development of `emtool`, you can create a new issue or submit a pull request.
+
+## License
+
+`emtool` is released under the MIT license. Do whatever you want with it.
