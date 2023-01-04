@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "emtool"
+version = "0.1.0"
+description = ""
+authors = ["IsaacBreen <mail@isaacbreen.com>"]
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+openai = "^0.25.0"
+delegatefn = "^0.3.3"
+rich = "^13.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+emtool = "emtool.cli:main"
