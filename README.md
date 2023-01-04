@@ -1,6 +1,6 @@
 # emedit
 
-`emedit` is a command line tool for performing semantic searches on text files. You specify a search query and a list of text files to search, and `emedit` returns a list of text segments ranked by their similarity to the query.
+`emedit` is a command line tool for performing semantic searches on text files. You specify a search query and a list of text files to search, `emedit` will fetch text from the files, split them into segments, embed them using OpenAI's API, and print them out in order of cosine distance to the query.
 
 ## Installation
 
