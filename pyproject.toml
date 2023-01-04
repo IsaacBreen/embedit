@@ -9,7 +9,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.11"
 openai = "^0.25.0"
-delegatefn = "^0.3.3"
+delegatefn = "^0.3.4"
 rich = "^13.0.0"
 
 [build-system]

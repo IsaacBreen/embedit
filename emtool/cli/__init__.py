@@ -23,6 +23,21 @@ def center_pad(text: str, width: int, *, fillchar: str = " ") -> str:
 
 @delegate(semantic_search, ignore=["query", "files"])
 def search(query: str, *files: str, order: Literal["ascending", "descending"] = "ascending", **kwargs):
+    """a command line tool for semantic file search
+
+    `emtool` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
+
+    :param query: The search query string.
+    :param files: One or more text files to search.
+    :param order: The order in which to sort the search results. Can be 'ascending' or 'descending'.
+    :param verbosity: An integer indicating the level of verbosity of the search results. Higher numbers will produce more detailed output.
+    :param fragment_lines: The number of lines to include in each search result fragment.
+    :param min_fragment_lines: The minimum number of lines that must match the search query for a result to be included.
+    :param threshold: A float indicating the minimum similarity score a result must have to be included.
+    :param top_n: An integer indicating the maximum number of search results to return.
+    :return: A list of search results, ranked by their similarity to the query.
+    :raises: ValueError - If the ``--order`` argument is not 'ascending' or 'descending'.
+    """
     directories = [file for file in files if pathlib.Path(file).is_dir()]
     if directories:
         console.print(f"Ignoring directories: {', '.join(directories)}")

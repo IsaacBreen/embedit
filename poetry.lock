@@ -56,14 +56,14 @@ test = ["flake8 (==3.7.8)", "hypothesis (==3.55.3)"]
 
 [[package]]
 name = "delegatefn"
-version = "0.3.3"
+version = "0.3.4"
 description = "Signature-preserving function delegation"
 category = "main"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "delegatefn-0.3.3-py3-none-any.whl", hash = "sha256:43b783c279986c5e40a0105ffe050cf856b3b6207ec9ce4399f8d35a62f5eaf1"},
-    {file = "delegatefn-0.3.3.tar.gz", hash = "sha256:559e92edb4c866ffbb017689ca28ceff19addcd4f6eac6f6a200394a56299669"},
+    {file = "delegatefn-0.3.4-py3-none-any.whl", hash = "sha256:32f1e171b448d322d5478e0d34526b7f3eb6d7c4176cce277f6b390222d1225c"},
+    {file = "delegatefn-0.3.4.tar.gz", hash = "sha256:84f1044b5e83239b722de212aeb472cd090cd5891f3fba3d113448e6cc26b2da"},
 ]
 
 [[package]]
@@ -376,4 +376,4 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "20407971711c78e5adcab896d15fbd7298e3e47879cd10e5d5fc33e9c15d324a"
+content-hash = "9cab93aad57e1b933027f7aa70e6988aff67971349ef93d179f99d2fe8fc5f2b"
