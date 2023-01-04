@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "emtool"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["IsaacBreen <mail@isaacbreen.com>"]
 readme = "README.md"
