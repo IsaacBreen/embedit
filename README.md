@@ -16,12 +16,15 @@ To use `emtool`, run the following command and specify your search query and the
 
 ```bash
 emtool search "search query" file1.txt file2.txt ...
+```
 You can also specify the following optional arguments:
+
 
 `--order`: the order in which the results should be displayed (ascending or descending by similarity score). Default: `ascending`.
 `--top-n`: the number of top results to display. Default: `3`.
 `--threshold`: a similarity threshold below which results should be filtered out. Default: `0.0`.
-```
+`--frament_lines`: the target fragment length in number of lines. Default: `10`.
+`--min_fragment_lines`: the minimum fragment length in number of lines. Default: `0`.
 
 ## Examples
 
