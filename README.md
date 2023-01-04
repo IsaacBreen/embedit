@@ -10,6 +10,8 @@ Install `emedit` using `pip`:
 pip install emedit
 ```
 
+This will install `emedit` and its dependencies, including `openai`. You will also need to set the `OPENAI_API_KEY` environment variable to your OpenAI API key if you haven't already done so.
+
 ## Usage
 
 To use `emedit`, run the following command:
