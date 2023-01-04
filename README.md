@@ -1,6 +1,6 @@
 # emedit
 
-`emedit` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
+`emedit` is a command line tool for performing semantic searches on text files. You specify a search query and a list of text files to search, and `emedit` returns a list of text segments ranked by their similarity to the query.
 
 ## Installation
 
@@ -12,7 +12,7 @@ pip install emedit
 
 ## Usage
 
-To use `emedit`, run the following command and specify your search query and the list of text files you want to search:
+To use `emedit`, run the following command:
 
 ```bash
 emedit search "search query" file1.txt file2.txt ...
@@ -20,49 +20,17 @@ emedit search "search query" file1.txt file2.txt ...
 You can also specify the following optional arguments:
 
 
-`--order`: the order in which the results should be displayed (ascending or descending by similarity score). Default: `ascending`.
-`--top-n`: the number of top results to display. Default: `3`.
-`--threshold`: a similarity threshold below which results should be filtered out. Default: `0.0`.
-`--frament_lines`: the target fragment length in number of lines. Default: `10`.
-`--min_fragment_lines`: the minimum fragment length in number of lines. Default: `0`.
+- `--order`: the order in which the results should be displayed (ascending or descending by similarity score). Default: `ascending`.
 
-## Examples
+- `--top-n`: the number of top results to display. Default: `3`.
 
-Here is an example of a search for the query "machine learning" in a set of text files:
+- `--threshold`: a similarity threshold below which results should be filtered out. Default: `0.0`.
 
-```bash
-emedit search "machine learning" file1.txt file2.txt file3.txt
-This will display the top 3 results for the search, ranked in descending order by similarity score.
-```
+- `--frament_lines`: the target fragment length in number of lines. Default: `10`.
 
-You can also specify a different number of top results to display using the `--top-n` argument:
+- `--min_fragment_lines`: the minimum fragment length in number of lines. Default: `0`.
 
-```bash
-emedit search "machine learning" file1.txt file2.txt file3.txt --top-n 5
-```
-
-This will display the top 5 results for the search.
-
-You can also specify a different order for the results using the `--order` argument:
-
-```bash
-emedit search "machine learning" file1.txt file2.txt file3.txt --order ascending
-```
-
-This will display the results in ascending order by similarity score.
-
-Finally, you can specify a similarity threshold to filter out results below a certain similarity score using the `--threshold` argument:
-
-```bash
-emedit search "machine learning" file1.txt file2.txt file3.txt --threshold 0.5
-```
-
-This will only display results with a similarity score greater than or equal to 0.5.
-
-### Wildcards
- 
-
-You can lso use wildcards to specify a pattern of files to search in. Here's an example of how you can use the `**` wildcard to search for Python files in all directories in the current directory and its subdirectories:
+You can also use wildcards to specify a pattern of files to search in. Here's an example of how you can use the `**` wildcard to search for Python files in all directories in the current directory and its subdirectories:
 
 ```bash
 emedit search "query" **/*.py
