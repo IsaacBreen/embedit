@@ -6,12 +6,13 @@ from delegatefn import delegate
 from rich.console import Console
 from rich.syntax import Syntax
 
-from embedit.behaviour.simple_transform import simple_transform_files
+from embedit.behaviour.create import create
+from embedit.behaviour.transform import simple_transform_files
 from embedit.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
 
 console = Console()
 
-from embedit.behaviour.pipelines import semantic_search
+from embedit.behaviour.search.pipelines import semantic_search
 
 
 def center_pad(text: str, width: int, *, fillchar: str = " ") -> str:
@@ -77,8 +78,8 @@ def search(query: str, *files: str, order: Literal["ascending", "descending"] = 
 
 
 def transform(
-    *files, prompt: str, pre_prompt: Optional[str] = None, output_dir: str, max_chunk_len: Optional[int] = None,
-    yes: bool = False, engine: str = "text-davinci-003", verbose: bool = False
+    *files, prompt: str, pre_prompt: Optional[str] = None, output_dir: str = "out", max_chunk_len: Optional[int] = None,
+    yes: bool = None, engine: str = "text-davinci-003", verbose: bool = False
 ):
     """
     Transforms text files by passing their markdown representation to the OpenAI API.
@@ -93,13 +94,13 @@ def transform(
     :return: Output of the OpenAI API.
     """
     return simple_transform_files(
-        *files, prompt=prompt, pre_prompt=pre_prompt, output_dir=output_dir, max_chunk_len=max_chunk_len, overwrite=yes,
+        *files, prompt=prompt, pre_prompt=pre_prompt, output_dir=output_dir, max_chunk_len=max_chunk_len, yes=yes,
         engine=engine, verbose=verbose
     )
 
 
 def main():
-    fire.Fire({"search": search, "transform": transform})
+    fire.Fire({"search": search, "transform": transform, "create": create})
 
 
 if __name__ == "__main__":

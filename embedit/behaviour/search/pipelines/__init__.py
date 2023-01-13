@@ -1,8 +1,8 @@
 from delegatefn import delegate
 
-from embedit.behaviour.pipeline_components.a01_gather import gather
-from embedit.behaviour.pipeline_components.a02_split import split_file
-from embedit.behaviour.pipeline_components.a03_process.search import embed_text, find_similar_fragments, embed_fragments
+from embedit.behaviour.search.pipeline_components.a01_gather import gather
+from embedit.behaviour.search.pipeline_components.a02_split import split_file
+from embedit.behaviour.search.pipeline_components.a03_process.search import embed_text, find_similar_fragments, embed_fragments
 from embedit.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
 
 
