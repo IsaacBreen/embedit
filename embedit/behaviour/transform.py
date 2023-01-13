@@ -19,7 +19,7 @@ default_pre_prompt = " ".join(
 
 
 def simple_transform_files(
-    *files, prompt: str, pre_prompt: Optional[str] = None, output_dir: str, max_chunk_len: Optional[int] = None,
+    *files, prompt: str, pre_prompt: Optional[str] = None, output_dir: str, max_chunk_len: Optional[int] = int(3.5*1600),
     yes: bool = False, engine: str = "text-davinci-003", verbose: bool = False
 ):
     """
