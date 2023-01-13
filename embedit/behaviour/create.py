@@ -10,6 +10,12 @@ default_pre_prompt = " ".join(
         "Respond to the user's requests with the appropriate text.",
         "Write in a professional manner and maintain the highest possible standards of output.",
         "Your response should be a sequence of markdown fences each preceded by a filename in a comment.",
+    ]
+)
+
+default_pre_prompt = "\n".join(
+    [
+        default_pre_prompt,
         "<| BEGINNING OF EXAMPLE |>",
         "<!-- relataive/path/to/file.py -->"
         "```python",
