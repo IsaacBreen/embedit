@@ -1,4 +1,4 @@
-from emedit.structures.text_file import TextFile, TextFileFragment
+from embedit.structures.text_file import TextFile, TextFileFragment
 
 
 def combine_fragments(fragments: list[TextFileFragment]) -> TextFile:

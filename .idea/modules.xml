@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/emtool.iml" filepath="$PROJECT_DIR$/.idea/emtool.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/embedit.iml" filepath="$PROJECT_DIR$/.idea/embedit.iml" />
     </modules>
   </component>
 </project>

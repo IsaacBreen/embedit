@@ -1,16 +1,17 @@
 import pathlib
-from typing import Literal
+from typing import Literal, Optional
 
 import fire
 from delegatefn import delegate
 from rich.console import Console
 from rich.syntax import Syntax
 
-from emedit.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
+from embedit.behaviour.simple_transform import simple_transform_files
+from embedit.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
 
 console = Console()
 
-from emedit.behaviour.pipelines import semantic_search
+from embedit.behaviour.pipelines import semantic_search
 
 
 def center_pad(text: str, width: int, *, fillchar: str = " ") -> str:
@@ -21,11 +22,11 @@ def center_pad(text: str, width: int, *, fillchar: str = " ") -> str:
     return fillchar * padding + text + fillchar * padding
 
 
-@delegate(semantic_search, ignore=["query", "files"])
+@delegate(semantic_search, ignore={"query", "files"})
 def search(query: str, *files: str, order: Literal["ascending", "descending"] = "ascending", **kwargs):
     """a command line tool for semantic file search
 
-    `emedit` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
+    `embedit search` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
 
     :param query: The search query string.
     :param files: One or more text files to search.
@@ -72,12 +73,33 @@ def search(query: str, *files: str, order: Literal["ascending", "descending"] = 
                 start_line=result.embedded_fragment.fragment.start_line
             )
         )
-        # console.print(center_pad("End of result", width=80, fillchar="-"), style="bold")
         console.print()
 
 
+def transform(
+    *files, prompt: str, pre_prompt: Optional[str] = None, output_dir: str, max_chunk_len: Optional[int] = None,
+    yes: bool = False, engine: str = "text-davinci-003", verbose: bool = False
+):
+    """
+    Transforms text files by passing their markdown representation to the OpenAI API.
+    :param files: Text files to transform.
+    :param prompt: The prompt to pass to the OpenAI API.
+    :param pre_prompt: An optional pre-prompt to pass to the OpenAI API.
+    :param output_dir: Directory to save the transformed files.
+    :param max_chunk_len: Maximum length of chunks to pass to the OpenAI API.
+    :param yes: Whether to prompt before creating or overwriting files.
+    :param engine: The OpenAI API engine to use. Defaults to 'text-davinci-003'; however, if you have access to "code-davinci-002", I recommend using that instead.
+    :param verbose: Print verbose output.
+    :return: Output of the OpenAI API.
+    """
+    return simple_transform_files(
+        *files, prompt=prompt, pre_prompt=pre_prompt, output_dir=output_dir, max_chunk_len=max_chunk_len, overwrite=yes,
+        engine=engine, verbose=verbose
+    )
+
+
 def main():
-    fire.Fire(search)
+    fire.Fire({"search": search, "transform": transform})
 
 
 if __name__ == "__main__":

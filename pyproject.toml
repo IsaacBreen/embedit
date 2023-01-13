@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "emedit"
+name = "embedit"
 version = "0.1.4"
 description = ""
 authors = ["IsaacBreen <mail@isaacbreen.com>"]
@@ -11,10 +11,11 @@ python = "^3.11"
 openai = "^0.25.0"
 delegatefn = "^0.3.4"
 rich = "^13.0.0"
+dir2md = "^0.2.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-emedit = "emedit.cli:main"
+embedit = "embedit.cli:main"
