@@ -9,7 +9,7 @@ default_pre_prompt = " ".join(
         "You are an advanced AI assistant for creating files.",
         "Respond to the user's requests with the appropriate text.",
         "Write in a professional manner and maintain the highest possible standards of output.",
-        "Your response should be a sequence of markdown fences each preceded by a filename in a comment.",
+        "Your response should be a sequence of markdown fences, each preceded by a filename in a comment.",
     ]
 )
 
@@ -17,12 +17,12 @@ default_pre_prompt = "\n".join(
     [
         default_pre_prompt,
         "<| BEGINNING OF EXAMPLE |>",
-        "<!-- relataive/path/to/file.py -->"
+        "<!-- relative/path/to/file.py -->"
         "```python",
         "def hello_world():",
         "    print(\"Hello, world!\")",
         "```",
-        "<!-- relataive/path/to/another/file.py -->"
+        "<!-- relative/path/to/another/file.py -->",
         "```python",
         "def another_function():",
         "    ...",
@@ -37,13 +37,24 @@ def create(
     yes: bool = False, engine: str = "text-davinci-003", verbose: bool = False
 ):
     """
-    Create the given files.
+    Create files from a prompt and pre-prompt using OpenAI's GPT-3 engine.
+
+    Args:
+        prompt (str): The prompt to be used for generating the files.
+        pre_prompt (Optional[str], optional): The pre-prompt to be used for generating the files. Defaults to None.
+        output_dir (str, optional): The directory to save the generated files to. Defaults to "out".
+        yes (bool, optional): Whether to overwrite existing files. Defaults to False.
+        engine (str, optional): The OpenAI engine to use. Defaults to "text-davinci-003".
+        verbose (bool, optional): Whether to print verbose output. Defaults to False.
+
+    Returns:
+        list: A list of markdown fences, each preceded by a filename in a comment.
     """
     if pre_prompt is None:
         pre_prompt = default_pre_prompt
 
     results = complete(
-        "< No input >", prompt=prompt, pre_prompt=pre_prompt, engine=engine, verbose=verbose
+        "<| No input |>", prompt=prompt, pre_prompt=pre_prompt, engine=engine, verbose=verbose
     )
     save_dir(list(md2dir(results)), output_dir=output_dir, yes=yes)
     return results

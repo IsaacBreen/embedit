@@ -93,7 +93,7 @@ def transform(
     :param verbose: Print verbose output.
     :return: Output of the OpenAI API.
     """
-    return simple_transform_files(
+    simple_transform_files(
         *files, prompt=prompt, pre_prompt=pre_prompt, output_dir=output_dir, max_chunk_len=max_chunk_len, yes=yes,
         engine=engine, verbose=verbose
     )
