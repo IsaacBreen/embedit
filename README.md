@@ -4,7 +4,7 @@
 
 *Can't I just feed my files to the API directly?*
 
-You could. But transforming each file independently could lead to inconsistent behaviour across your project. `embedit transform` combines your files together in a single prompt, so that they can be transformed in a coherent way, and then splits the result back into individual files.
+You could. But transforming each file independently could lead to inconsistent behaviour. `embedit transform` combines your files into a single prompt so that they can be transformed in a coherent way and then splits the result back into individual files.
 
 ## Installation
 
