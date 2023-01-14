@@ -3,12 +3,12 @@ from typing import Optional
 
 import tiktoken
 from dir2md import TextFile, dir2md, md2dir, save_dir
+from embedit.utils.diff import get_diff_stats, pretty_diff
 from rich import print
 from rich.panel import Panel
 from rich.syntax import Syntax
 
 from embedit.behaviour.openai import complete
-from embedit.utils.diff import diff_strings, get_diff_statistics, prettify_diff
 
 enc = tiktoken.get_encoding("gpt2")
 
@@ -41,17 +41,6 @@ default_pre_prompt = "\n".join(
         "<| END OF EXAMPLE |>",
     ]
 )
-
-
-def get_difflines(result: str, path: str) -> list[str]:
-    """
-    Compare the result of a transformation to the original file and return a pretty diff.
-    """
-    # Read the original file if it exists.
-    original = pathlib.Path(path).read_text() if pathlib.Path(path).is_file() else ""
-    # Diff the result and the original
-    difflines: list[str] = diff_strings(original, result)
-    return difflines
 
 
 def simple_transform_files(
@@ -98,26 +87,10 @@ def simple_transform_files(
         result_files: list[TextFile] = list(md2dir(result_markdown))
         # Print the diff of each file
         for result in result_files:
-            print(prettify_file_diff(result.text, result.path))
+            original = pathlib.Path(result.path).read_text() if pathlib.Path(result.path).is_file() else ""
+            diff = pretty_diff(original, result.text)
+            diff_stats = get_diff_stats(original, result.text)
+            print(Panel(diff, title=result.path, subtitle=f"{diff_stats.added} lines added, {diff_stats.removed} lines removed"))
         save_dir(result_files, output_dir=output_dir, yes=yes)
         return result_files
 
-
-def prettify_file_diff(result: str, path: str):
-    """
-    Compare the result of a transformation to the original file and return a pretty diff.
-    """
-    # Read the original file if it exists.
-    original = pathlib.Path(path).read_text() if pathlib.Path(path).is_file() else ""
-    # Diff the result and the original
-    difflines: list[str] = diff_strings(original, result)
-    diff_stats = get_diff_statistics(difflines)
-    # Pretty print the diff in a panel
-    if pathlib.Path(path).is_file():
-        title = f"Diff for {path}:"
-        subtitle = f"Lines added: {diff_stats.added}; lines removed: {diff_stats.removed}"
-    else:
-        title = f"Lines added: {diff_stats.added}"
-        subtitle = f"New file {path}:"
-    pretty_diff = prettify_diff(difflines, syntax=Syntax.guess_lexer(path, result))
-    return Panel(pretty_diff, title=title, subtitle=subtitle)
