@@ -36,9 +36,6 @@ def create(
     prompt: str, *, pre_prompt: Optional[str] = None, output_dir: str = "out",
     yes: bool = False, engine: str = "text-davinci-003", verbose: bool = False
 ):
-    """
-    ...
-    """
     if pre_prompt is None:
         pre_prompt = default_pre_prompt
 

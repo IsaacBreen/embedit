@@ -8,15 +8,32 @@ enc = tiktoken.get_encoding("gpt2")
 
 
 def complete(
-    string: str, prompt: str, pre_prompt: str, engine: str = "text-davinci-003", verbose: bool = False
+    string: str,
+    prompt: str,
+    pre_prompt: str,
+    engine: str = "text-davinci-003",
+    verbose: bool = False,
 ) -> str:
     """
     Takes a markdown string and a prompt, sends the prompt to the OpenAI API with the markdown string as the context,
     and returns the result.
     """
-    total_prompt = "\n".join([pre_prompt, "## Request", prompt, "## Input", string, "## Response"])
+    end_prompt_token = "<| END OF PROMPT |>"
+    pre_prompt_extra = f"Once you're finished responding, write {end_prompt_token} on a line by itself."
+    total_prompt = "\n".join(
+        [
+            pre_prompt,
+            pre_prompt_extra,
+            "## Request",
+            prompt,
+            "## Input",
+            string,
+            "## Response",
+            "<| START OF RESPONSE |>",
+        ]
+    )
     num_input_tokens = len(enc.encode(total_prompt))
-    max_tokens = 4097
+    max_tokens = 4097 if engine != "code-davinci-002" else 8000
     max_output_tokens = max_tokens - num_input_tokens
     if verbose:
         print(f"Prompt:")
@@ -29,6 +46,7 @@ def complete(
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
+        stop=[end_prompt_token],
     )
     text = result.choices[0].text.strip()
     if verbose:
