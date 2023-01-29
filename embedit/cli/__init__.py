@@ -1,7 +1,8 @@
 import pathlib
+import subprocess
 from typing import Literal
 from typing import Optional
-import subprocess
+
 import fire
 from delegatefn import delegate
 from rich.console import Console
@@ -133,6 +134,7 @@ def commit_msg(
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
+    num_lines_context: int = 10,
     verbose: bool = False,
 ):
     """
@@ -144,19 +146,22 @@ def commit_msg(
     :param engine: The OpenAI API engine to use.
     :param num_examples: The number of examples to use.
     :param use_builtin_examples: Whether to use the built-in examples.
+    :param num_lines_context: The number of lines of context to include in the diff.
+    :param hint: A hint to pass in the prompt.
     :param verbose: Print verbose output.
     :return: A commit message.
     """
     return make_commit_message(
-        path,
-        max_log_tokens,
-        max_diff_tokens,
-        max_output_tokens,
-        engine,
-        num_examples,
-        use_builtin_examples,
-        hint,
-        verbose,
+        path=path,
+        max_log_tokens=max_log_tokens,
+        max_diff_tokens=max_diff_tokens,
+        max_output_tokens=max_output_tokens,
+        engine=engine,
+        num_examples=num_examples,
+        use_builtin_examples=use_builtin_examples,
+        hint=hint,
+        num_lines_context=num_lines_context,
+        verbose=verbose,
     )
 
 
@@ -169,6 +174,7 @@ def autocommit(
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
+    num_lines_context: int = 10,
     verbose: bool = False,
     git_params: dict = {},
 ):
@@ -181,21 +187,23 @@ def autocommit(
     :param engine: The OpenAI API engine to use.
     :param num_examples: The number of examples to use.
     :param use_builtin_examples: Whether to use the built-in examples.
-    :param hint: A hint to pass to the OpenAI API.
+    :param hint: A hint to pass in the prompt.
+    :param num_lines_context: The number of lines of context to include in the diff.
     :param verbose: Print verbose output.
     :param git_params: Keyword arguments to pass to the git commit command.
     :return: A commit message.
     """
     message = make_commit_message(
-        path,
-        max_log_tokens,
-        max_diff_tokens,
-        max_output_tokens,
-        engine,
-        num_examples,
-        use_builtin_examples,
-        hint,
-        verbose,
+        path=path,
+        max_log_tokens=max_log_tokens,
+        max_diff_tokens=max_diff_tokens,
+        max_output_tokens=max_output_tokens,
+        engine=engine,
+        num_examples=num_examples,
+        use_builtin_examples=use_builtin_examples,
+        hint=hint,
+        num_lines_context=num_lines_context,
+        verbose=verbose,
     )
     # Convert keyword arguments back into a reasonable format
     reassembled_args = []
