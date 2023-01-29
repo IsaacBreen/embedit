@@ -188,10 +188,10 @@ def get_diffstrs(path: str, max_diff_tokens: int) -> Iterator[str]:
 
 def make_commit_message(
     path: str = ".",
-    max_log_tokens: int = 3000,
-    max_diff_tokens: int = 4000,
-    max_output_tokens: int = 1000,
-    engine: str = "code-davinci-002",
+    max_log_tokens: int = 1400,
+    max_diff_tokens: int = 1400,
+    max_output_tokens: int = 400,
+    engine: str = "text-davinci-003",
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     verbose: bool = False,
@@ -230,10 +230,21 @@ def make_commit_message(
             ).strip()
             messages.append(message)
         assert len(messages) > 1
+        combine_examples = [
+            (
+                Task(
+                    context="Modified func1 to print x + 2.\nAdded a print statement to show the current value of x. This, together with the previous commit, will help with debugging and understanding the function's behavior.",
+                    request="Combine the commit messages into a single, concise one-liner.",
+                ),
+                Result(
+                    response="Modified func1 to print x + 2 and added a print statement to show the current value of x. This will help with debugging and understanding the function's behavior."
+                ),
+            ),
+        ]
         combined_message = complete(
             context="\n".join(messages),
             prompt="Combine the commit messages into a single, concise one-liner.",
-            examples=[],
+            examples=combine_examples,
             pre_prompt=default_pre_prompt,
             max_output_tokens=max_output_tokens,
             engine=engine,
