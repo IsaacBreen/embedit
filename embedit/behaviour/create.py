@@ -34,7 +34,7 @@ default_pre_prompt = "\n".join(
 
 def create(
     prompt: str, *, pre_prompt: Optional[str] = None, output_dir: str = "out",
-    yes: bool = False, engine: str = "text-davinci-003", verbose: bool = False
+    yes: bool = False, engine: str = "code-davinci-002", verbose: bool = False
 ):
     if pre_prompt is None:
         pre_prompt = default_pre_prompt

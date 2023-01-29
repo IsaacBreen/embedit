@@ -79,7 +79,7 @@ def search(query: str, *files: str, order: Literal["ascending", "descending"] = 
 
 def transform(
     *files, prompt: str, pre_prompt: Optional[str] = None, output_dir: str = "out", max_chunk_len: Optional[int] = None,
-    yes: bool = None, engine: str = "text-davinci-003", verbose: bool = False
+    yes: bool = None, engine: str = "code-davinci-002", verbose: bool = False
 ):
     """
     Transforms text files by passing their markdown representation to the OpenAI API.
@@ -89,7 +89,7 @@ def transform(
     :param output_dir: Directory to save the transformed files.
     :param max_chunk_len: Maximum length of chunks to pass to the OpenAI API.
     :param yes: Whether to prompt before creating or overwriting files.
-    :param engine: The OpenAI API engine to use. Defaults to 'text-davinci-003'; however, if you have access to "code-davinci-002", I recommend using that instead.
+    :param engine: The OpenAI API engine to use. Defaults to 'code-davinci-002'; however, if you have access to "code-davinci-002", I recommend using that instead.
     :param verbose: Print verbose output.
     :return: Output of the OpenAI API.
     """
