@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "embedit"
-version = "0.1.7"
+version = "0.2.0"
 description = ""
 authors = ["IsaacBreen <mail@isaacbreen.com>"]
 readme = "README.md"
@@ -12,6 +12,7 @@ openai = "^0.25.0"
 delegatefn = "^0.3.4"
 rich = "^13.0.0"
 dir2md = "^0.2.1"
+gitpython = "^3.1.30"
 
 [build-system]
 requires = ["poetry-core"]

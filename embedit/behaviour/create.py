@@ -2,7 +2,7 @@ from typing import Optional
 
 from dir2md import md2dir, save_dir
 
-from embedit.behaviour.openai import complete
+from embedit.behaviour.openai_tools import complete
 
 default_pre_prompt = " ".join(
     [

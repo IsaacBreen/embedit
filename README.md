@@ -48,6 +48,24 @@ The `transform` command allows you to transform one or more text files by passin
 embedit transform **/*.py --prompt "Add a docstring at the top of each file" --output-dir out
 ```
 
+### Generate commit message
+
+The `commit-msg` command will generate a commit message based on the diff of the staged files and the commit history. 
+
+To use it, you can run it directly:
+
+```bash
+embedit commit-msg
+```
+
+Or, a one-liner to generate a commit message and then commit:
+
+```bash
+git commit -m "`embedit commit-msg`"
+```
+
+I haven't tried to add `commit-msg` as a git hook, but I imagine it would work.
+
 #### Options
 
 - `--files`: One or more text files to transform.

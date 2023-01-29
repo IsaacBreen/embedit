@@ -1,6 +1,6 @@
 import numpy as np
 
-from embedit.behaviour.openai import get_embedding, get_embeddings
+from embedit.behaviour.openai_tools import get_embedding, get_embeddings
 from embedit.structures.embedding import EmbeddedTextFileFragment, EmbeddedText, \
     EmbeddedTextFileFragmentSimilarityResult
 from embedit.structures.text_file import TextFileFragment

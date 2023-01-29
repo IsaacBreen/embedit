@@ -1,5 +1,6 @@
 import pathlib
-from typing import Literal, Optional
+from typing import Literal
+from typing import Optional
 
 import fire
 from delegatefn import delegate
@@ -7,6 +8,7 @@ from rich.console import Console
 from rich.syntax import Syntax
 
 from embedit.behaviour.create import create
+from embedit.behaviour.git import make_commit_message
 from embedit.behaviour.transform import simple_transform_files
 from embedit.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
 
@@ -24,7 +26,12 @@ def center_pad(text: str, width: int, *, fillchar: str = " ") -> str:
 
 
 @delegate(semantic_search, ignore={"query", "files"})
-def search(query: str, *files: str, order: Literal["ascending", "descending"] = "ascending", **kwargs):
+def search(
+    query: str,
+    *files: str,
+    order: Literal["ascending", "descending"] = "ascending",
+    **kwargs,
+):
     """a command line tool for semantic file search
 
     `embedit search` is a command line tool for performing semantic searches on a set of text files. It allows you to specify a search query and a list of text files to search, and returns a list of results ranked by their similarity to the query.
@@ -48,7 +55,9 @@ def search(query: str, *files: str, order: Literal["ascending", "descending"] = 
     # Filter out directories
     console.print(f"Searching for '{query}' in {len(files)} files")
     # Search for the query
-    results: list[EmbeddedTextFileFragmentSimilarityResult] = semantic_search(query, *files, **kwargs)
+    results: list[EmbeddedTextFileFragmentSimilarityResult] = semantic_search(
+        query, *files, **kwargs
+    )
     # Enumerate and sort the results
     results = sorted(results, key=lambda result: result.similarity, reverse=True)
     enumerated_results = enumerate(results, start=1)
@@ -66,20 +75,30 @@ def search(query: str, *files: str, order: Literal["ascending", "descending"] = 
         console.print(f"Path: {result.embedded_fragment.fragment.path}")
         # Print the result contents with appropriate highlighting
         lexer: str = Syntax.guess_lexer(
-            result.embedded_fragment.fragment.path, result.embedded_fragment.fragment.contents
+            result.embedded_fragment.fragment.path,
+            result.embedded_fragment.fragment.contents,
         )
         console.print(
             Syntax(
-                result.embedded_fragment.fragment.contents, lexer, theme="monokai", line_numbers=True,
-                start_line=result.embedded_fragment.fragment.start_line
+                result.embedded_fragment.fragment.contents,
+                lexer,
+                theme="monokai",
+                line_numbers=True,
+                start_line=result.embedded_fragment.fragment.start_line,
             )
         )
         console.print()
 
 
 def transform(
-    *files, prompt: str, pre_prompt: Optional[str] = None, output_dir: str = "out", max_chunk_len: Optional[int] = None,
-    yes: bool = None, engine: str = "code-davinci-002", verbose: bool = False
+    *files,
+    prompt: str,
+    pre_prompt: Optional[str] = None,
+    output_dir: str = "out",
+    max_chunk_len: Optional[int] = None,
+    yes: bool = None,
+    engine: str = "code-davinci-002",
+    verbose: bool = False,
 ):
     """
     Transforms text files by passing their markdown representation to the OpenAI API.
@@ -94,13 +113,53 @@ def transform(
     :return: Output of the OpenAI API.
     """
     simple_transform_files(
-        *files, prompt=prompt, pre_prompt=pre_prompt, output_dir=output_dir, max_chunk_len=max_chunk_len, yes=yes,
-        engine=engine, verbose=verbose
+        *files,
+        prompt=prompt,
+        pre_prompt=pre_prompt,
+        output_dir=output_dir,
+        max_chunk_len=max_chunk_len,
+        yes=yes,
+        engine=engine,
+        verbose=verbose,
+    )
+
+
+def commit_msg(
+    path: str = ".",
+    max_log_tokens: int = 1400,
+    max_diff_tokens: int = 1400,
+    max_output_tokens: int = 400,
+    engine: str = "text-davinci-003",
+    num_examples: int = 10,
+    use_builtin_examples: bool = True,
+    verbose: bool = False,
+):
+    """
+    Creates a commit message from the diff between the current working directory and the specified path.
+    :param path: The path to diff against.
+    :return: The commit message.
+    """
+    return make_commit_message(
+        path,
+        max_log_tokens,
+        max_diff_tokens,
+        max_output_tokens,
+        engine,
+        num_examples,
+        use_builtin_examples,
+        verbose,
     )
 
 
 def main():
-    fire.Fire({"search": search, "transform": transform, "create": create})
+    fire.Fire(
+        {
+            "search"    : search,
+            "transform" : transform,
+            "create"    : create,
+            "commit-msg": commit_msg,
+        }
+    )
 
 
 if __name__ == "__main__":
