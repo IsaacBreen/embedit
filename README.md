@@ -98,6 +98,7 @@ embedit autocommit --engine "code-davinci-002" --hint "doc params" --num-example
 ```
 ## Tips
 
+### Wildcards
 You can also use wildcards to specify a pattern of files to search in. Here's an example of how you can use the `**` wildcard to search for Python files in all directories in the current directory and its subdirectories:
 
 ```bash
@@ -105,6 +106,22 @@ embedit search "query" **/*.py
 ```
 
 Bear in mind that the behavior of the `*` and `**` wildcards may vary depending on your operating system and the terminal shell you're using.
+
+### Autocommit workflow
+
+I like to use the following alias, `qc` (quick commit) to automatically generate and commit changes:
+
+```bash
+alias qc="embedit autocommit --num-examples 0 --engine \"code-davinci-002\""
+```
+
+Example usage:
+
+```bash
+qc -h "hint hint"
+```
+
+Then, when it gets something wrong, I edit the commit message and run `git commit --amend` to fix it.
 
 ## Contributing
 
