@@ -129,7 +129,7 @@ def commit_msg(
     max_log_tokens: int = 1400,
     max_diff_tokens: int = 1400,
     max_output_tokens: int = 400,
-    engine: str = "text-davinci-003",
+    engine: str = "code-davinci-002",
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     verbose: bool = False,
