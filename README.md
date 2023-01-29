@@ -48,24 +48,6 @@ The `transform` command allows you to transform one or more text files by passin
 embedit transform **/*.py --prompt "Add a docstring at the top of each file" --output-dir out
 ```
 
-### Generate commit message
-
-The `commit-msg` command will generate a commit message based on the diff of the staged files and the commit history. 
-
-To use it, you can run it directly:
-
-```bash
-embedit commit-msg
-```
-
-Or, a one-liner to generate a commit message and then commit:
-
-```bash
-git commit -m "`embedit commit-msg`"
-```
-
-I haven't tried to add `commit-msg` as a git hook, but I imagine it would work.
-
 #### Options
 
 - `--files`: One or more text files to transform.
@@ -77,6 +59,43 @@ I haven't tried to add `commit-msg` as a git hook, but I imagine it would work.
 - `--verbose`: Whether to print verbose output.
 - `--max_chunk_len`: The maximum length (in characters) of chunks to pass to the OpenAI API.
 
+### Generate commit message
+
+The `commit-msg` command will generate a commit message based on the diff of the staged files and the commit history. 
+
+To use it, you can run it directly:
+
+```bash
+embedit commit-msg
+```
+
+To generate and commit the changes in one step, you can use the `autocommit` command:
+
+```bash
+embedit autocommit
+```
+
+I haven't tried to add `commit-msg` as a git hook, but I imagine it would work.
+
+#### Options
+
+- `--path`: The path to diff against.
+- `--max-log-tokens`: The maximum number of tokens to include in the commit message.
+- `--max-diff-tokens`: The maximum number of tokens to include in the diff.
+- `--max-output-tokens`: The maximum number of tokens to include in the OpenAI API output.
+- `--engine`: The OpenAI API engine to use.
+- `--num-examples`: The number of examples to use.
+- `--use-builtin-examples`: Whether to use the built-in examples.
+- `--hint`: A hint to pass to the OpenAI API.
+- `--verbose`: Print verbose output.
+- `--git-params`: Keyword arguments to pass to the git commit command.
+
+
+For example, the below command will generate a commit message using `code-davinci-002`, passing a hint that the document parameters have been updated, and will use not any of your previous commits as examples. The latter option is useful if your past commit messages have suffered *neglect*.
+
+```bash
+embedit autocommit --engine "code-davinci-002" --hint "doc params" --num-examples 0
+```
 ## Tips
 
 You can also use wildcards to specify a pattern of files to search in. Here's an example of how you can use the `**` wildcard to search for Python files in all directories in the current directory and its subdirectories:
