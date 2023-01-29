@@ -137,7 +137,14 @@ def commit_msg(
     """
     Creates a commit message from the diff between the current working directory and the specified path.
     :param path: The path to diff against.
-    :return: The commit message.
+    :param max_log_tokens: The maximum number of tokens to include in the commit message.
+    :param max_diff_tokens: The maximum number of tokens to include in the diff.
+    :param max_output_tokens: The maximum number of tokens to include in the OpenAI API output.
+    :param engine: The OpenAI API engine to use.
+    :param num_examples: The number of examples to use.
+    :param use_builtin_examples: Whether to use the built-in examples.
+    :param verbose: Print verbose output.
+    :return: A commit message.
     """
     return make_commit_message(
         path,
