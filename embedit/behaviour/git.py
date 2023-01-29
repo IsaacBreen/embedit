@@ -1,8 +1,8 @@
 """
 Create a git commit message.
 """
+import os
 import re
-import textwrap
 from typing import Iterator
 from typing import Optional
 
@@ -14,6 +14,42 @@ from embedit.behaviour.openai_tools import complete
 from embedit.behaviour.openai_tools import tokclip
 from embedit.behaviour.openai_tools import toklen
 from embedit.behaviour.prompts.default import default_pre_prompt
+
+musings_on_good_vs_great_commit_messages = """
+A good commit message should:
+
+- Be written in the present tense
+- Be brief and to the point (less than 50 characters is a good rule of thumb for the subject line)
+- Describe the changes made in the commit
+A great commit message goes beyond that and also:
+
+- Explains the why behind the change, not just the what
+- Provides context for the change
+- Is written in a clear and concise manner
+- Includes any relevant issue or ticket numbers
+- Includes any testing done
+
+Writing clear and informative commit messages makes it easier for others to understand the changes made to the codebase and can help when debugging and reviewing pull requests.
+
+Good commit message:
+
+"Fix bug in login form"
+Great commit message:
+
+"Fix incorrect validation in login form #1234
+The form was failing to validate the password field correctly and throwing an error, now the validation has been updated to correctly match the password against the database. Tested on multiple scenarios and confirmed to work as expected."
+
+The "good" commit message is brief and clearly states the changes made, but it does not explain why the change was necessary or provide any context.
+
+The "great" commit message, on the other hand, not only states the change but also explains the reasoning behind it, provides context, and includes relevant information such as the issue number and testing done. This level of detail makes it easier for others to understand the change and its impact on the codebase.
+"""
+
+pre_prompt_commit = "\n\n".join(
+    [
+        default_pre_prompt,
+        musings_on_good_vs_great_commit_messages,
+    ]
+)
 
 
 def make_builtin_examples():
@@ -76,25 +112,11 @@ def rate_commit_message(commit_message: str) -> int:
     """
     Rate the given commit message on a scale of 0 to 10.
     """
-    pre_prompt = textwrap.dedent(
-        """
-            Comment on the following commit messages. Rate them on a scale of 0 to 10.
-            
-            A good commit message should:
-        
-            - Be written in the present tense
-            - Be brief and to the point (less than 50 characters is a good rule of thumb for the subject line)
-            - Describe the changes made in the commit
-            A great commit message goes beyond that and also:
-            
-            - Explains the why behind the change, not just the what
-            - Provides context for the change
-            - Is written in a clear and concise manner
-            - Includes any relevant issue or ticket numbers
-            - Includes any testing done
-            
-            Writing clear and informative commit messages makes it easier for others to understand the changes made to the codebase and can help when debugging and reviewing pull requests.
-            """
+    pre_prompt = "\n\n".join(
+        [
+            "Comment on the following commit messages. Rate them on a scale of 0 to 10.",
+            musings_on_good_vs_great_commit_messages,
+        ]
     )
 
     examples = [
@@ -217,7 +239,7 @@ def make_commit_message(
             context=diffstrs[0],
             prompt=make_prompt(quality=10, hint=hint),
             examples=examples,
-            pre_prompt=default_pre_prompt,
+            pre_prompt=pre_prompt_commit,
             max_output_tokens=max_output_tokens,
             engine=engine,
             verbose=verbose,
@@ -231,7 +253,7 @@ def make_commit_message(
                 context=diffstr,
                 prompt=make_prompt(quality=10, hint=hint),
                 examples=examples,
-                pre_prompt=default_pre_prompt,
+                pre_prompt=pre_prompt_commit,
                 max_output_tokens=max_output_tokens,
                 engine=engine,
                 verbose=verbose,
