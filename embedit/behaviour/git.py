@@ -64,8 +64,11 @@ def make_builtin_examples():
     ]
 
 
-def make_prompt(quality: int) -> str:
-    return f"Write a commit message for the given diff (quality: {quality}/10)"
+def make_prompt(quality: int, hint: Optional[str] = None) -> str:
+    prompt = f"Write a commit message for the given diff (quality: {quality}/10)"
+    if hint is not None:
+        prompt += f" (hint: {hint})"
+    return prompt
 
 
 def rate_commit_message(commit_message: str) -> int:
@@ -196,6 +199,7 @@ def make_commit_message(
     engine: str = "code-davinci-002",
     num_examples: int = 10,
     use_builtin_examples: bool = True,
+    hint: Optional[str] = None,
     verbose: bool = False,
 ) -> str:
     """Return a commit message based on the given diff."""
@@ -210,7 +214,7 @@ def make_commit_message(
     if len(diffstrs) == 1:
         return complete(
             context=diffstrs[0],
-            prompt=make_prompt(quality=10),
+            prompt=make_prompt(quality=10, hint=hint),
             examples=examples,
             pre_prompt=default_pre_prompt,
             max_output_tokens=max_output_tokens,
@@ -224,7 +228,7 @@ def make_commit_message(
         for diffstr in diffstrs:
             message = complete(
                 context=diffstr,
-                prompt=make_prompt(quality=10),
+                prompt=make_prompt(quality=10, hint=hint),
                 examples=examples,
                 pre_prompt=default_pre_prompt,
                 max_output_tokens=max_output_tokens,
