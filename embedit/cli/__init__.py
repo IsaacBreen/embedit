@@ -1,7 +1,7 @@
 import pathlib
 from typing import Literal
 from typing import Optional
-
+import subprocess
 import fire
 from delegatefn import delegate
 from rich.console import Console
@@ -132,6 +132,7 @@ def commit_msg(
     engine: str = "code-davinci-002",
     num_examples: int = 10,
     use_builtin_examples: bool = True,
+    hint: Optional[str] = None,
     verbose: bool = False,
 ):
     """
@@ -154,8 +155,57 @@ def commit_msg(
         engine,
         num_examples,
         use_builtin_examples,
+        hint,
         verbose,
     )
+
+
+def autocommit(
+    path: str = ".",
+    max_log_tokens: int = 1400,
+    max_diff_tokens: int = 1400,
+    max_output_tokens: int = 400,
+    engine: str = "code-davinci-002",
+    num_examples: int = 10,
+    use_builtin_examples: bool = True,
+    hint: Optional[str] = None,
+    verbose: bool = False,
+    git_params: dict = {},
+):
+    """
+    Creates a commit message from the diff between the current working directory and the specified path, then commits the changes.
+    :param path: The path to diff against.
+    :param max_log_tokens: The maximum number of tokens to include in the commit message.
+    :param max_diff_tokens: The maximum number of tokens to include in the diff.
+    :param max_output_tokens: The maximum number of tokens to include in the OpenAI API output.
+    :param engine: The OpenAI API engine to use.
+    :param num_examples: The number of examples to use.
+    :param use_builtin_examples: Whether to use the built-in examples.
+    :param hint: A hint to pass to the OpenAI API.
+    :param verbose: Print verbose output.
+    :param git_params: Keyword arguments to pass to the git commit command.
+    :return: A commit message.
+    """
+    message = make_commit_message(
+        path,
+        max_log_tokens,
+        max_diff_tokens,
+        max_output_tokens,
+        engine,
+        num_examples,
+        use_builtin_examples,
+        hint,
+        verbose,
+    )
+    # Convert keyword arguments back into a reasonable format
+    reassembled_args = []
+    for key, value in git_params.items():
+        reassembled_args.append(f"--{key}")
+        if value is not None:
+            reassembled_args.append(value)
+    # Commit the changes
+    subprocess.run(["git", "commit", "-m", message, *reassembled_args])
+    return message
 
 
 def main():
@@ -165,6 +215,7 @@ def main():
             "transform" : transform,
             "create"    : create,
             "commit-msg": commit_msg,
+            "autocommit": autocommit,
         }
     )
 
