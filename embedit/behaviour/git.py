@@ -223,9 +223,12 @@ def make_commit_message(
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
+    num_lines_context: int = 10,
     verbose: bool = False,
 ) -> str:
     """Return a commit message based on the given diff."""
+    # Set the GIT_DIFF_OPTS environment variable to change the number of lines of context shown in the diff.
+    os.environ["GIT_DIFF_OPTS"] = f"-u{num_lines_context}"
     diffstrs = list(get_diffstrs(path=path, max_diff_tokens=max_diff_tokens))
     if use_builtin_examples:
         examples = make_builtin_examples()
