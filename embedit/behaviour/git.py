@@ -4,6 +4,7 @@ Create a git commit message.
 import re
 import textwrap
 from typing import Iterator
+from typing import Optional
 
 from git import Repo
 
@@ -169,8 +170,8 @@ def get_diffstrs(path: str, max_diff_tokens: int) -> Iterator[str]:
     If all the diffs together are within the max_diff_tokens limit, yield them all together. Otherwise, yield them one at a time.
     """
     repo = Repo(path)
-    # Diff the staged changes
-    diff = list(repo.index.diff("HEAD", create_patch=True))
+    # Diff between head and staged
+    diff = list(repo.index.diff(repo.head.commit, create_patch=True, R=True))
     if len(diff) == 0:
         raise ValueError("No changes to commit. Have you staged your changes?")
     diff_chunk = []
