@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "embedit"
-version = "0.2.6"
+version = "0.2.7"
 description = ""
 authors = ["IsaacBreen <mail@isaacbreen.com>"]
 readme = "README.md"

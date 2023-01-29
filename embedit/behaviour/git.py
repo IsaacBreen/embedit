@@ -31,6 +31,8 @@ A great commit message goes beyond that and also:
 
 Writing clear and informative commit messages makes it easier for others to understand the changes made to the codebase and can help when debugging and reviewing pull requests.
 
+There is no need to use a period to end very short commit messages, but longer commit messages should be written with formal grammar and punctuation.
+
 Good commit message:
 
 "Fix bug in login form"
