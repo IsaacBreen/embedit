@@ -184,6 +184,8 @@ def get_diffstrs(path: str, max_diff_tokens: int) -> Iterator[str]:
             diff_chunk = []
             diff_chunk_size = 0
         diff_chunk.append(str(d))
+    if len(diff_chunk) > 0:
+        yield "\n".join(diff_chunk)
 
 
 def make_commit_message(
@@ -191,7 +193,7 @@ def make_commit_message(
     max_log_tokens: int = 1400,
     max_diff_tokens: int = 1400,
     max_output_tokens: int = 400,
-    engine: str = "text-davinci-003",
+    engine: str = "code-davinci-002",
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     verbose: bool = False,
@@ -216,6 +218,7 @@ def make_commit_message(
             verbose=verbose,
         ).strip()
     else:
+        assert len(diffstrs) > 1
         # Process each diff separately and combine the results
         messages = []
         for diffstr in diffstrs:
@@ -229,7 +232,6 @@ def make_commit_message(
                 verbose=verbose,
             ).strip()
             messages.append(message)
-        assert len(messages) > 1
         combine_examples = [
             (
                 Task(
