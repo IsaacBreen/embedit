@@ -10,10 +10,10 @@ from tenacity import retry
 from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
 
-enc = tiktoken.get_encoding("gpt2")
+from embedit.structures.special_tokens import end_response_token
+from embedit.structures.special_tokens import start_response_token
 
-start_response_token = "<| START OF RESPONSE |>"
-end_response_token = "<| END OF RESPONSE |>"
+enc = tiktoken.get_encoding("gpt2")
 
 
 def toklen(string: str) -> int:
