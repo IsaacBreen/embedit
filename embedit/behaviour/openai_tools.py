@@ -106,6 +106,7 @@ def complete(
     engine: str = "code-davinci-002",
     min_output_tokens: int = 1,
     max_output_tokens: Optional[int] = None,
+    mark_examples: bool = False,
     verbose: bool = False,
 ) -> str:
     """
@@ -121,15 +122,15 @@ def complete(
             prompt_parts = []
         else:
             prompt_parts = [
-                "## Request",
+                "## Request" + (" (Example)" if mark_examples else ""),
                 task.request,
             ]
         example_parts.extend(
             [
-                "## Context",
+                "## Context" + (" (Example)" if mark_examples else ""),
                 task.context,
                 *prompt_parts,
-                "## Response",
+                "## Response" + (" (Example)" if mark_examples else ""),
                 start_response_token,
                 result.response,
                 end_response_token,
