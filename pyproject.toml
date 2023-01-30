@@ -7,12 +7,14 @@ readme = "README.md"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 openai = "^0.25.0"
 delegatefn = "^0.3.4"
 rich = "^13.0.0"
 dir2md = "^0.2.1"
 gitpython = "^3.1.30"
+tiktoken = "^0.1.2"
+tenacity = "^8.1.0"
 
 [build-system]
 requires = ["poetry-core"]
