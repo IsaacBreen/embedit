@@ -1,10 +1,9 @@
 # embedit
 
-`embedit` is a command line tool for performing bulk operations on text files (e.g. a package) with OpenAI's API. It currently provides two commands: `search`, which performs semantic search on text files using embeddings, and `transform` which performs arbitrary transformations using a custom prompt.
+`embedit` is a command line tool for performing bulk operations on text files (e.g. a package) with OpenAI's API. It currently provides these commands: `search`, which performs semantic search on text files using embeddings, and `transform` which performs arbitrary transformations using a custom prompt.
+ `commit-msg` generates a commit message based on the diff of the staged files and the commit history.
+ `autocommit` generates a commit message and commits the changes in one step.
 
-*Can't I just feed my files to the API directly?*
-
-You could. But transforming each file independently could lead to inconsistent behaviour. `embedit transform` combines your files into a single prompt so that they can be transformed in a coherent way and then splits the result back into individual files.
 
 ## Installation
 
@@ -17,8 +16,6 @@ pip install embedit
 This will install `embedit` and its dependencies, including `openai`. You will also need to set the `OPENAI_API_KEY` environment variable to your OpenAI API key if you haven't already done so.
 
 ## Usage
-
-`embedit` provides two commands: `search` and `transform`.
 
 ### Search
 
@@ -47,6 +44,10 @@ The `transform` command allows you to transform one or more text files by passin
 ```bash
 embedit transform **/*.py --prompt "Add a docstring at the top of each file" --output-dir out
 ```
+
+*Can't I just feed my files to the API directly?*
+
+You could. But transforming each file independently could lead to inconsistent behaviour. `embedit transform` combines your files into a single prompt so that they can be transformed in a coherent way and then splits the result back into individual files.
 
 #### Options
 
