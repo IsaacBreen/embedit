@@ -70,6 +70,7 @@ def openai_create(engine: str, **kwargs) -> str:
     if engine:
         return openai_create_codex(engine=engine, **kwargs)
     else:
+        # return openai_create_raw(engine=engine, **kwargs).choices[0].text
         return openai_create_raw(engine=engine, **kwargs)
 
 
