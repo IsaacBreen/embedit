@@ -58,8 +58,11 @@ def response_did_finished(response: str) -> bool:
 
 @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
 @delegate(openai.Completion.create)
-def openai_create_raw(**kwargs):
-    return openai.Completion.create(**kwargs)
+def openai_create_raw(**kwargs) -> str:
+    kwargs["model"] = "gpt-3.5-turbo"
+    del kwargs["engine"]
+    kwargs["messages"] = [{"role": "user", "content": kwargs.pop("prompt")}]
+    return openai.ChatCompletion.create(**kwargs).choices[0].message.content
 
 
 @delegate(openai.Completion.create)
@@ -67,7 +70,7 @@ def openai_create(engine: str, **kwargs) -> str:
     if engine:
         return openai_create_codex(engine=engine, **kwargs)
     else:
-        return openai_create_raw(engine=engine, **kwargs).choices[0].text
+        return openai_create_raw(engine=engine, **kwargs)
 
 
 @delegate(openai.Completion.create)
@@ -80,7 +83,7 @@ def openai_create_codex(**kwargs) -> str:
     max_tokens = kwargs["max_tokens"]
     while not response_did_finished(response) and max_tokens > 0:
         kwargs["max_tokens"] = min(max_tokens, 2000)
-        response += openai_create_raw(**kwargs).choices[0].text
+        response += openai_create_raw(**kwargs)
         kwargs["prompt"] += response
         max_tokens -= 2000
     return response
