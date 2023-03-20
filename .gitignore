@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/pycharm,vscode,python,macos,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=pycharm,vscode,python,macos,windows
 
+*.pickle
+
 ### macOS ###
 # General
 .DS_Store
@@ -8,7 +10,8 @@
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
