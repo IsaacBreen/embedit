@@ -6,7 +6,6 @@ from typing import Optional
 
 import fire
 from delegatefn import delegate
-from embedit.utils.log import logger
 from rich.console import Console
 from rich.syntax import Syntax
 
@@ -14,6 +13,7 @@ from embedit.behaviour.create import create
 from embedit.behaviour.git import make_commit_message
 from embedit.behaviour.transform import simple_transform_files
 from embedit.structures.embedding import EmbeddedTextFileFragmentSimilarityResult
+from embedit.utils.log import logger
 
 console = Console()
 
@@ -26,6 +26,18 @@ def center_pad(text: str, width: int, *, fillchar: str = " ") -> str:
     padding = (width - len(text)) // 2
     # Pad the text
     return fillchar * padding + text + fillchar * padding
+
+
+def resolve_model(model: Optional[str], engine: Optional[str]) -> str:
+    if engine is not None:
+        logger.warning("The engine keyword argument is deprecated. Use model instead.")
+    if engine is not None and model is not None:
+        raise ValueError("Cannot specify both engine and model.")
+    if engine is not None:
+        model = engine
+    if model is None:
+        model = "gpt-3.5-turbo"
+    return model
 
 
 @delegate(semantic_search, ignore={"query", "files"})
@@ -54,6 +66,7 @@ def search(
 
     if verbose:
         logger.setLevel(logging.INFO)
+
     directories = [file for file in files if pathlib.Path(file).is_dir()]
     if directories:
         console.print(f"Ignoring directories: {', '.join(directories)}")
@@ -104,7 +117,8 @@ def transform(
     output_dir: str = "out",
     max_chunk_len: Optional[int] = None,
     yes: bool = None,
-    model: str = "gpt-3.5-turbo",
+    model: Optional[str] = None,
+    engine: Optional[str] = None,
 ):
     """
     Transforms text files by passing their markdown representation to the OpenAI API.
@@ -114,9 +128,12 @@ def transform(
     :param output_dir: Directory to save the transformed files.
     :param max_chunk_len: Maximum length of chunks to pass to the OpenAI API.
     :param yes: Whether to prompt before creating or overwriting files.
-    :param model: The OpenAI API model to use. Defaults to 'gpt-3.5-turbo'; however, if you have access to "gpt-3.5-turbo", I recommend using that instead.
+    :param model: The OpenAI API model to use.
+    :param engine: (Deprecated) The OpenAI API engine to use. Use model instead.
     :return: Output of the OpenAI API.
     """
+    model = resolve_model(model, engine)
+
     simple_transform_files(
         *files,
         prompt=prompt,
@@ -133,7 +150,8 @@ def commit_msg(
     max_log_tokens: int = 1400,
     max_diff_tokens: int = 1400,
     max_output_tokens: int = 400,
-    model: str = "gpt-3.5-turbo",
+    model: Optional[str] = None,
+    engine: Optional[str] = None,
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
@@ -147,6 +165,7 @@ def commit_msg(
     :param max_diff_tokens: The maximum number of tokens to include in the diff.
     :param max_output_tokens: The maximum number of tokens to include in the OpenAI API output.
     :param model: The OpenAI API model to use.
+    :param engine: (Deprecated) The OpenAI API engine to use. Use model instead.
     :param num_examples: The number of examples to use.
     :param use_builtin_examples: Whether to use the built-in examples.
     :param num_lines_context: The number of lines of context to include in the diff.
@@ -156,6 +175,9 @@ def commit_msg(
     """
     if verbose:
         logger.setLevel(logging.INFO)
+
+    model = resolve_model(model, engine)
+
     return make_commit_message(
         path=path,
         max_log_tokens=max_log_tokens,
@@ -202,11 +224,7 @@ def autocommit(
     if verbose:
         logger.setLevel(logging.INFO)
 
-    if engine is not None:
-        logger.warning("The engine keyword argument is deprecated. Use model instead.")
-        if model is not None:
-            raise ValueError("Cannot specify both engine and model.")
-        model = engine
+    model = resolve_model(model, engine)
 
     message = make_commit_message(
         path=path,
