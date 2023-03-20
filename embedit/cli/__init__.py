@@ -1,3 +1,4 @@
+import logging
 import pathlib
 import subprocess
 from typing import Literal
@@ -5,6 +6,7 @@ from typing import Optional
 
 import fire
 from delegatefn import delegate
+from embedit.utils.log import logger
 from rich.console import Console
 from rich.syntax import Syntax
 
@@ -31,6 +33,7 @@ def search(
     query: str,
     *files: str,
     order: Literal["ascending", "descending"] = "ascending",
+    verbose: bool = False,
     **kwargs,
 ):
     """a command line tool for semantic file search
@@ -40,7 +43,7 @@ def search(
     :param query: The search query string.
     :param files: One or more text files to search.
     :param order: The order in which to sort the search results. Can be 'ascending' or 'descending'.
-    :param verbosity: An integer indicating the level of verbosity of the search results. Higher numbers will produce more detailed output.
+    :param verbose: Whether to print verbose output.
     :param fragment_lines: The number of lines to include in each search result fragment.
     :param min_fragment_lines: The minimum number of lines that must match the search query for a result to be included.
     :param threshold: A float indicating the minimum similarity score a result must have to be included.
@@ -48,6 +51,9 @@ def search(
     :return: A list of search results, ranked by their similarity to the query.
     :raises: ValueError - If the ``--order`` argument is not 'ascending' or 'descending'.
     """
+
+    if verbose:
+        logger.setLevel(logging.INFO)
     directories = [file for file in files if pathlib.Path(file).is_dir()]
     if directories:
         console.print(f"Ignoring directories: {', '.join(directories)}")
@@ -99,7 +105,6 @@ def transform(
     max_chunk_len: Optional[int] = None,
     yes: bool = None,
     model: str = "gpt-3.5-turbo",
-    verbose: bool = False,
 ):
     """
     Transforms text files by passing their markdown representation to the OpenAI API.
@@ -110,7 +115,6 @@ def transform(
     :param max_chunk_len: Maximum length of chunks to pass to the OpenAI API.
     :param yes: Whether to prompt before creating or overwriting files.
     :param model: The OpenAI API model to use. Defaults to 'gpt-3.5-turbo'; however, if you have access to "gpt-3.5-turbo", I recommend using that instead.
-    :param verbose: Print verbose output.
     :return: Output of the OpenAI API.
     """
     simple_transform_files(
@@ -121,7 +125,6 @@ def transform(
         max_chunk_len=max_chunk_len,
         yes=yes,
         model=model,
-        verbose=verbose,
     )
 
 
@@ -151,6 +154,8 @@ def commit_msg(
     :param verbose: Print verbose output.
     :return: A commit message.
     """
+    if verbose:
+        logger.setLevel(logging.INFO)
     return make_commit_message(
         path=path,
         max_log_tokens=max_log_tokens,
@@ -161,7 +166,6 @@ def commit_msg(
         use_builtin_examples=use_builtin_examples,
         hint=hint,
         num_lines_context=num_lines_context,
-        verbose=verbose,
     )
 
 
@@ -170,14 +174,15 @@ def autocommit(
     max_log_tokens: int = 1400,
     max_diff_tokens: int = 1400,
     max_output_tokens: int = 400,
-    model: str = "gpt-3.5-turbo",
+    model: Optional[str] = None,
+    engine: Optional[str] = None,
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
     num_lines_context: int = 10,
     verbose: bool = False,
     git_params: dict = {},
-):
+) -> str:
     """
     Creates a commit message from the diff between the current working directory and the specified path, then commits the changes.
     :param path: The path to diff against.
@@ -185,6 +190,7 @@ def autocommit(
     :param max_diff_tokens: The maximum number of tokens to include in the diff.
     :param max_output_tokens: The maximum number of tokens to include in the OpenAI API output.
     :param model: The OpenAI API model to use.
+    :param engine: (Deprecated) The OpenAI API engine to use. Use model instead.
     :param num_examples: The number of examples to use.
     :param use_builtin_examples: Whether to use the built-in examples.
     :param hint: A hint to pass in the prompt.
@@ -193,6 +199,15 @@ def autocommit(
     :param git_params: Keyword arguments to pass to the git commit command.
     :return: A commit message.
     """
+    if verbose:
+        logger.setLevel(logging.INFO)
+
+    if engine is not None:
+        logger.warning("The engine keyword argument is deprecated. Use model instead.")
+        if model is not None:
+            raise ValueError("Cannot specify both engine and model.")
+        model = engine
+
     message = make_commit_message(
         path=path,
         max_log_tokens=max_log_tokens,
@@ -203,7 +218,6 @@ def autocommit(
         use_builtin_examples=use_builtin_examples,
         hint=hint,
         num_lines_context=num_lines_context,
-        verbose=verbose,
     )
     # Convert keyword arguments back into a reasonable format
     reassembled_args = []

@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from typing import Literal
 from typing import Optional
@@ -5,12 +6,28 @@ from typing import Optional
 import openai
 import tiktoken
 from delegatefn import delegate
-from embedit.structures.special_tokens import end_response_token
-from embedit.structures.special_tokens import start_response_token
-from rich import print
 from tenacity import retry
 from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
+from tqdm.auto import tqdm
+
+from embedit.structures.special_tokens import end_response_token
+from embedit.structures.special_tokens import start_response_token
+from embedit.utils.log import logger
+
+
+class TqdmLoggingHandler(logging.Handler):
+    def emit(self, record):
+        if record.levelno >= logging.ERROR:
+            try:
+                msg = self.format(record)
+                tqdm.write(msg)
+                self.flush()
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except:
+                self.handleError(record)
+
 
 enc = tiktoken.get_encoding("gpt2")
 
@@ -90,7 +107,6 @@ def complete(
     min_output_tokens: int = 1,
     max_output_tokens: Optional[int] = None,
     mark_examples: bool = False,
-    verbose: bool = False,
 ) -> str:
     """
     Takes a markdown string and a prompt, sends the prompt to the OpenAI API with the markdown string as the context,
@@ -161,16 +177,11 @@ def complete(
         presence_penalty=0,
         stop=[end_response_token],
     )
-    if verbose:
-        print("Parameters:")
-        print(request_params)
-        print(f"Prompt:")
-        print(total_prompt)
+    logger.info(f"Parameters: {request_params}")
+    logger.info(f"Prompt: {total_prompt}")
 
     text = openai_create(**request_params)
-    if verbose:
-        print(f"Response (including end token):")
-        print(text)
+    logger.info(f"Response (including end token): {text}")
     # If the response ran out of tokens, raise an exception
     if toklen(text) == max_output_tokens + 1:
         raise ValueError(
@@ -189,9 +200,8 @@ def get_embedding(text: str, model="text-embedding-ada-002") -> list[float]:
     return openai.Embedding.create(input=[text], model=model)["data"][0]["embedding"]
 
 
-@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
 def get_embeddings(
-    list_of_text: list[str], model="text-embedding-ada-002"
+    list_of_text: list[str], model="text-embedding-ada-002", batch_size: Optional[int] = None
 ) -> list[list[float]]:
     assert len(list_of_text) > 0
     assert len(list_of_text) <= 2048, "The batch size should not be larger than 2048."
@@ -200,8 +210,38 @@ def get_embeddings(
     list_of_text = [text.replace("\n", " ") for text in list_of_text]
 
     create = retry(
-        wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6)
+        wait=wait_random_exponential(min=1, max=10), stop=stop_after_attempt(3)
     )(openai.Embedding.create)
-    data = create(input=list_of_text, model=model).data
-    data = sorted(data, key=lambda x: x["index"])  # maintain the same order as input.
-    return [d["embedding"] for d in data]
+
+    def _get_embeddings(list_of_text: list[str]) -> list[list[float]]:
+        data = create(input=list_of_text, model=model).data
+        data = sorted(data, key=lambda x: x["index"])  # maintain the same order as input.
+        return [d["embedding"] for d in data]
+
+    if batch_size is None:
+        # If the batch size is not specified, send all the data at once.
+        return _get_embeddings(list_of_text)
+    else:
+        # Send in batches. Log to the logger with tqdm.
+        embeddings = []
+        logger.addHandler(TqdmLoggingHandler())
+
+        # Only show the progress bar if the log level is INFO or lower.
+        if logger.level >= logging.INFO:
+            pbar = tqdm(total=len(list_of_text), desc="Getting embeddings")
+        else:
+            pbar = None
+
+        for i in range(0, len(list_of_text), batch_size):
+            batch = list_of_text[i: i + batch_size]
+            embeddings.extend(_get_embeddings(batch))
+
+            if pbar:
+                pbar.update(batch_size)
+                pbar.set_description(f"Processing {i + batch_size}/{len(list_of_text)} texts")
+                pbar.refresh()
+
+        if pbar:
+            pbar.close()
+
+    return embeddings

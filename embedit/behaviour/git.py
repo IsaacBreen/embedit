@@ -226,7 +226,6 @@ def make_commit_message(
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
     num_lines_context: int = 10,
-    verbose: bool = False,
 ) -> str:
     """Return a commit message based on the given diff."""
     # Set the GIT_DIFF_OPTS environment variable to change the number of lines of context shown in the diff.
@@ -247,7 +246,6 @@ def make_commit_message(
             pre_prompt=pre_prompt_commit,
             max_output_tokens=max_output_tokens,
             model=model,
-            verbose=verbose,
         ).strip()
     else:
         assert len(diffstrs) > 1
@@ -261,7 +259,6 @@ def make_commit_message(
                 pre_prompt=pre_prompt_commit,
                 max_output_tokens=max_output_tokens,
                 model=model,
-                verbose=verbose,
             ).strip()
             messages.append(message)
         combine_examples = [
@@ -282,6 +279,5 @@ def make_commit_message(
             pre_prompt=default_pre_prompt,
             max_output_tokens=max_output_tokens,
             model=model,
-            verbose=verbose,
         ).strip()
         return combined_message

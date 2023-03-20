@@ -4,6 +4,7 @@ from embedit.behaviour.openai_tools import get_embedding, get_embeddings
 from embedit.structures.embedding import EmbeddedTextFileFragment, EmbeddedText, \
     EmbeddedTextFileFragmentSimilarityResult
 from embedit.structures.text_file import TextFileFragment
+from embedit.utils.log import logger
 
 
 def cosine_similarity(a, b):
@@ -24,11 +25,9 @@ def embed_text(text: str) -> EmbeddedText:
 
 
 def find_similar_fragments(
-    embedded_text: str, embedded_fragments: list[EmbeddedTextFileFragment], *, threshold: float = 0.0, top_n: int = 3,
-    verbosity: int = 1
+    embedded_text: EmbeddedText, embedded_fragments: list[EmbeddedTextFileFragment], *, threshold: float = 0.0, top_n: int = 3,
 ) -> list[EmbeddedTextFileFragmentSimilarityResult]:
-    if verbosity > 0:
-        print("Finding similar fragments from a list of", len(embedded_fragments), "fragments.")
+    logger.info(f"Finding similar fragments from a list of {len(embedded_fragments)} fragments.")
     # Get the embeddings for the fragment
     embedding = embedded_text.embedding
     # Find the most similar fragments

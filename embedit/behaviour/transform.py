@@ -27,7 +27,6 @@ def simple_transform_files(
     max_chunk_len: Optional[int] = 1600,
     yes: bool = False,
     model: str = "gpt-3.5-turbo",
-    verbose: bool = False,
 ):
     """
     Transform the given files by passing their markdown representation with the given prompt to the OpenAI API.
@@ -43,7 +42,7 @@ def simple_transform_files(
     results = []
     for chunk_files in chunks:
         result = simple_transform_files_execute_chunk(
-            model, chunk_files, pre_prompt, prompt, verbose
+            model, chunk_files, pre_prompt, prompt
         )
         results.extend(result)
 
@@ -74,7 +73,7 @@ def simple_transform_files_get_chunks(files: Sequence[str], max_chunk_len: int):
 
 
 def simple_transform_files_execute_chunk(
-    model: str, files: Sequence[TextFile], pre_prompt: str, prompt: str, verbose: bool
+    model: str, files: Sequence[TextFile], pre_prompt: str, prompt: str
 ) -> list[TextFile]:
     # Transform all files at once
     markdown = "\n".join(dir2md(*files))
@@ -83,7 +82,6 @@ def simple_transform_files_execute_chunk(
         prompt=prompt,
         pre_prompt=pre_prompt,
         model=model,
-        verbose=verbose,
     )
     result_files: list[TextFile] = list(md2dir(result_markdown))
     return result_files

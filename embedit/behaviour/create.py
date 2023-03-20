@@ -34,13 +34,13 @@ default_pre_prompt = "\n".join(
 
 def create(
     prompt: str, *, pre_prompt: Optional[str] = None, output_dir: str = "out",
-    yes: bool = False, model: str = "gpt-3.5-turbo", verbose: bool = False
+    yes: bool = False, model: str = "gpt-3.5-turbo"
 ):
     if pre_prompt is None:
         pre_prompt = default_pre_prompt
 
     results = complete(
-        "<| No input |>", prompt=prompt, pre_prompt=pre_prompt, model=model, verbose=verbose
+        "<| No input |>", prompt=prompt, pre_prompt=pre_prompt, model=model
     )
     save_dir(list(md2dir(results)), output_dir=output_dir, yes=yes)
     return results
