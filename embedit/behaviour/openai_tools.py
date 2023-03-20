@@ -1,3 +1,4 @@
+import gzip
 import logging
 import os
 import pickle
@@ -7,18 +8,21 @@ from functools import wraps
 from pathlib import Path
 from typing import Literal
 from typing import Optional
+import cohere
 
 import openai
 import tiktoken
 from delegatefn import delegate
+from embedit.structures.special_tokens import end_response_token
+from embedit.structures.special_tokens import start_response_token
+from embedit.utils.log import logger
 from tenacity import retry
 from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
 from tqdm.auto import tqdm
 
-from embedit.structures.special_tokens import end_response_token
-from embedit.structures.special_tokens import start_response_token
-from embedit.utils.log import logger
+co = cohere.Client()
+
 
 
 def toklen(string: str, model: str) -> int:
@@ -64,26 +68,26 @@ def response_did_finished(response: str) -> bool:
     return end_response_token in response
 
 
-CACHE_FILE = Path(__file__).parent / "openai_cache.pickle"
+CACHE_FILE = Path(__file__).parent / "openai_cache.pickle.gz"
 CACHE_DURATION = 86400  # Cache duration in seconds (86400 seconds is 24 hours)
 
 
 def load_cache():
+    logger.info("Loading cache")
     if os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE, "rb") as f:
+        with gzip.open(CACHE_FILE, "rb") as f:
             return pickle.load(f)
     else:
         return {}
 
-
 def save_cache(cache):
-    with open(CACHE_FILE, "wb") as f:
+    logger.info("Saving cache")
+    with gzip.open(CACHE_FILE, "wb") as f:
         pickle.dump(cache, f)
+    logger.info("Cache saved")
 
-
-def check_cache_validity(cache_key):
+def check_cache_validity(cache, cache_key):
     current_time = time.time()
-    cache = load_cache()
     if cache_key in cache and (current_time - cache[cache_key]["timestamp"]) <= CACHE_DURATION:
         return True
     return False
@@ -92,8 +96,9 @@ def check_cache_validity(cache_key):
 def cache_response(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
+        cache = load_cache()
         cache_key = str(args) + str(kwargs)
-        if check_cache_validity(cache_key):
+        if check_cache_validity(cache, cache_key):
             cache = load_cache()
             return cache[cache_key]["response"]
         else:
@@ -247,55 +252,104 @@ class TqdmLoggingHandler(logging.Handler):
                 self.handleError(record)
 
 
-def get_embedding(text: str, model="text-embedding-ada-002") -> list[float]:
-    # replace newlines, which can negatively affect performance.
-    text = text.replace("\n", " ")
+@cache_response
+def get_embedding(text: str, mode: Literal["cohere", "openai"]) -> list[float]:
+    if mode == "openai":
+        model = "text-embedding-ada-002"
 
-    return openai.Embedding.create(input=[text], model=model)["data"][0]["embedding"]
+        # replace newlines, which can negatively affect performance.
+        text = text.replace("\n", " ")
+
+        return openai.Embedding.create(input=[text], model=model)["data"][0]["embedding"]
+    elif mode == "cohere":
+        return list(co.embed([text]).embeddings[0])
+    else:
+        raise ValueError(f"Invalid mode: {mode}")
 
 
 def get_embeddings(
-    list_of_text: list[str], model="text-embedding-ada-002", batch_size: Optional[int] = None
+    list_of_text: list[str], model="text-embedding-ada-002", batch_size: Optional[int] = None, mode: Literal["cohere", "openai"] = "openai"
 ) -> list[list[float]]:
-    assert len(list_of_text) > 0
-    assert len(list_of_text) <= 2048, "The batch size should not be larger than 2048."
+    assert 0 < len(list_of_text) < 2048, "Must have between 1 and 2047 texts."
 
-    # replace newlines, which can negatively affect performance.
     list_of_text = [text.replace("\n", " ") for text in list_of_text]
 
-    create = retry(
-        wait=wait_random_exponential(min=1, max=10), stop=stop_after_attempt(3)
-    )(openai.Embedding.create)
+    cached_embeddings = []
+    uncached_texts = []
+
+
+    cache = load_cache()  # Load cache once
+
+    for text in list_of_text:
+        cache_key = get_cache_key(text=text, model=model, mode=mode)
+        if check_cache_validity(cache, cache_key):
+            cached_embeddings.append(cache[cache_key]["response"])
+        else:
+            uncached_texts.append(text)
+
+    logger.info(f"{len(cached_embeddings)} embeddings in cache, {len(uncached_texts)} not in cache.")
 
     def _get_embeddings(list_of_text: list[str]) -> list[list[float]]:
-        data = create(input=list_of_text, model=model).data
-        data = sorted(data, key=lambda x: x["index"])  # maintain the same order as input.
-        return [d["embedding"] for d in data]
+        if len(list_of_text) == 0:
+            return []
+
+        if mode == "openai":
+            model = "text-embedding-ada-002"
+
+            create = retry(
+                wait=wait_random_exponential(min=1, max=10), stop=stop_after_attempt(3)
+            )(openai.Embedding.create)
+
+            logger.info(f"Getting embeddings for {len(list_of_text)} texts.")
+            response = create(input=list_of_text, model=model)
+            data = sorted(response.data, key=lambda x: x["index"])
+            return [d["embedding"] for d in data]
+        elif mode == "cohere":
+            return [list(embedding) for embedding in co.embed(list_of_text).embeddings]
+        else:
+            raise ValueError(f"Invalid mode: {mode}")
+
 
     if batch_size is None:
-        # If the batch size is not specified, send all the data at once.
-        return _get_embeddings(list_of_text)
+        uncached_embeddings = _get_embeddings(uncached_texts)
+
+        for text, embedding in zip(uncached_texts, uncached_embeddings):
+            cache_key = get_cache_key(text=text, model=model, mode=mode)
+            cache[cache_key] = {"response": embedding, "timestamp": time.time()}
     else:
-        # Send in batches. Log to the logger with tqdm.
-        embeddings = []
-        logger.addHandler(TqdmLoggingHandler())
+        uncached_embeddings = []
 
-        # Only show the progress bar if the log level is INFO or lower.
-        if logger.level >= logging.INFO:
-            pbar = tqdm(total=len(list_of_text), desc="Getting embeddings")
+        pbar = tqdm(total=len(list_of_text), desc="Getting embeddings")
+
+        for i in range(0, len(uncached_texts), batch_size):
+            batch = uncached_texts[i: i + batch_size]
+            batch_embeddings = _get_embeddings(batch)
+            uncached_embeddings.extend(batch_embeddings)
+
+            for text, embedding in zip(batch, batch_embeddings):
+                cache_key = get_cache_key(text=text, model=model, mode=mode)
+                cache[cache_key] = {"response": embedding, "timestamp": time.time()}
+
+            pbar.update(batch_size)
+            pbar.set_description(f"Processing {i + batch_size}/{len(list_of_text)} texts")
+            pbar.refresh()
+
+        pbar.close()
+
+    save_cache(cache)  # Save cache once
+
+    embeddings = []
+    embedding_index = 0
+    for text in list_of_text:
+        cache_key = get_cache_key(text=text, model=model, mode=mode)
+        if check_cache_validity(cache, cache_key):
+            embeddings.append(cache[cache_key]["response"])
         else:
-            pbar = None
-
-        for i in range(0, len(list_of_text), batch_size):
-            batch = list_of_text[i: i + batch_size]
-            embeddings.extend(_get_embeddings(batch))
-
-            if pbar:
-                pbar.update(batch_size)
-                pbar.set_description(f"Processing {i + batch_size}/{len(list_of_text)} texts")
-                pbar.refresh()
-
-        if pbar:
-            pbar.close()
+            embeddings.append(uncached_embeddings[embedding_index])
+            embedding_index += 1
 
     return embeddings
+
+
+def get_cache_key(text: str, model: str, mode: Literal["cohere", "openai"]) -> str:
+    return f"{mode}-{model}-{text}"

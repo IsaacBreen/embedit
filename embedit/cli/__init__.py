@@ -41,11 +41,13 @@ def resolve_model(model: Optional[str], engine: Optional[str]) -> str:
     return model
 
 
-@delegate(semantic_search, ignore={"query", "files"})
+@delegate(semantic_search, ignore={"query", "files", "mode"})
 def search(
     query: str,
     *files: str,
     order: Literal["ascending", "descending"] = "ascending",
+    top_n: Optional[int] = 3,
+    mode: Literal["openai", "cohere"] = "openai",
     verbose: bool = False,
     **kwargs,
 ):
@@ -60,13 +62,14 @@ def search(
     :param fragment_lines: The number of lines to include in each search result fragment.
     :param min_fragment_lines: The minimum number of lines that must match the search query for a result to be included.
     :param threshold: A float indicating the minimum similarity score a result must have to be included.
+    :param mode: The embedding mode to use. Can be 'openai' or 'cohere'.
     :param top_n: An integer indicating the maximum number of search results to return.
     :return: A list of search results, ranked by their similarity to the query.
     :raises: ValueError - If the ``--order`` argument is not 'ascending' or 'descending'.
     """
 
     if verbose:
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
 
     directories = [file for file in files if pathlib.Path(file).is_dir()]
     if directories:
@@ -77,10 +80,12 @@ def search(
     console.print(f"Searching for '{query}' in {len(files)} files")
     # Search for the query
     results: list[EmbeddedTextFileFragmentSimilarityResult] = semantic_search(
-        query, *files, **kwargs
+        query, *files, mode=mode, **kwargs
     )
     # Enumerate and sort the results
     results = sorted(results, key=lambda result: result.similarity, reverse=True)
+    if top_n is not None:
+        results = results[:top_n]
     enumerated_results = enumerate(results, start=1)
     if order == "ascending":
         enumerated_results = reversed(list(enumerated_results))
@@ -175,7 +180,7 @@ def commit_msg(
     :return: A commit message.
     """
     if verbose:
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
 
     model = resolve_model(model, engine)
 
@@ -223,7 +228,7 @@ def autocommit(
     :return: A commit message.
     """
     if verbose:
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
 
     model = resolve_model(model, engine)
 

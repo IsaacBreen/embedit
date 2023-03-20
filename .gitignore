@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=pycharm,vscode,python,macos,windows
 
 *.pickle
+*.pickle.gz
 
 ### macOS ###
 # General
