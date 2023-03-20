@@ -1,5 +1,10 @@
 import logging
+import os
+import pickle
+import time
 from dataclasses import dataclass
+from functools import wraps
+from pathlib import Path
 from typing import Literal
 from typing import Optional
 
@@ -14,19 +19,6 @@ from tqdm.auto import tqdm
 from embedit.structures.special_tokens import end_response_token
 from embedit.structures.special_tokens import start_response_token
 from embedit.utils.log import logger
-
-
-class TqdmLoggingHandler(logging.Handler):
-    def emit(self, record):
-        if record.levelno >= logging.ERROR:
-            try:
-                msg = self.format(record)
-                tqdm.write(msg)
-                self.flush()
-            except (KeyboardInterrupt, SystemExit):
-                raise
-            except:
-                self.handleError(record)
 
 
 def toklen(string: str, model: str) -> int:
@@ -72,13 +64,59 @@ def response_did_finished(response: str) -> bool:
     return end_response_token in response
 
 
+CACHE_FILE = Path(__file__).parent / "openai_cache.pickle"
+CACHE_DURATION = 86400  # Cache duration in seconds (86400 seconds is 24 hours)
+
+
+def load_cache():
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "rb") as f:
+            return pickle.load(f)
+    else:
+        return {}
+
+
+def save_cache(cache):
+    with open(CACHE_FILE, "wb") as f:
+        pickle.dump(cache, f)
+
+
+def check_cache_validity(cache_key):
+    current_time = time.time()
+    cache = load_cache()
+    if cache_key in cache and (current_time - cache[cache_key]["timestamp"]) <= CACHE_DURATION:
+        return True
+    return False
+
+
+def cache_response(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        cache_key = str(args) + str(kwargs)
+        if check_cache_validity(cache_key):
+            cache = load_cache()
+            return cache[cache_key]["response"]
+        else:
+            response = function(*args, **kwargs)
+            cache = load_cache()
+            cache[cache_key] = {"response": response, "timestamp": time.time()}
+            save_cache(cache)
+            return response
+
+    return wrapper
+
+
+@cache_response
 @delegate(openai.Completion.create)
 def openai_create_raw(**kwargs) -> str:
     kwargs.setdefault("model", "gpt-3.5-turbo")
     kwargs["messages"] = [{"role": "system", "content": "You are a text completion engine."},
                           {"role": "user", "content": kwargs.pop("prompt")}]
     logger.debug(f"Sending request to OpenAI: {kwargs}")
-    response = openai.ChatCompletion.create(**kwargs).choices[0].message.content
+    chat_completion = retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10))(
+        openai.ChatCompletion.create
+    )
+    response = chat_completion(**kwargs).choices[0].message.content
     logger.debug(f"Received response from OpenAI: {response}")
     return response
 
@@ -194,6 +232,19 @@ def complete(
     # Remove the end token
     text = text.replace(end_response_token, "")
     return text
+
+
+class TqdmLoggingHandler(logging.Handler):
+    def emit(self, record):
+        if record.levelno >= logging.ERROR:
+            try:
+                msg = self.format(record)
+                tqdm.write(msg)
+                self.flush()
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except:
+                self.handleError(record)
 
 
 def get_embedding(text: str, model="text-embedding-ada-002") -> list[float]:
