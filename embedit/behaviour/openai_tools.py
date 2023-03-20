@@ -29,22 +29,22 @@ class TqdmLoggingHandler(logging.Handler):
                 self.handleError(record)
 
 
-enc = tiktoken.get_encoding("gpt2")
-
-
-def toklen(string: str) -> int:
+def toklen(string: str, model: str) -> int:
     """
     Returns the number of tokens in the given string.
     """
+    enc = tiktoken.encoding_for_model(model)
     return len(enc.encode(string))
 
 
-def tokclip(string: str, max_tokens: int, keep: Literal["left", "right"]) -> str:
+def tokclip(string: str, max_tokens: int, keep: Literal["left", "right"], model: str) -> str:
     """
     Returns the given string clipped to the given number of tokens.
     """
-    if toklen(string) <= max_tokens:
+    if toklen(string, model) <= max_tokens:
         return string
+
+    enc = tiktoken.encoding_for_model(model)
 
     if keep == "left":
         return enc.decode(enc.encode(string)[-max_tokens:])
@@ -161,7 +161,7 @@ def complete(
             start_response_token,
         ]
     )
-    num_input_tokens = toklen(total_prompt)
+    num_input_tokens = toklen(total_prompt, model)
     if max_output_tokens is None:
         max_tokens = get_max_tokens(model)
         max_output_tokens = max_tokens - num_input_tokens
@@ -187,7 +187,7 @@ def complete(
     text = openai_create(**request_params)
     logger.info(f"Response (including end token): {text}")
     # If the response ran out of tokens, raise an exception
-    if toklen(text) == max_output_tokens + 1:
+    if toklen(text, model) == max_output_tokens + 1:
         raise ValueError(
             "Ran out of tokens. Try setting max_tokens higher."
         )

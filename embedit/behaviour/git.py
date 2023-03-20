@@ -3,6 +3,7 @@ Create a git commit message.
 """
 import os
 import re
+from typing import Callable
 from typing import Iterator
 from typing import Optional
 
@@ -148,20 +149,14 @@ def rate_commit_message(commit_message: str) -> int:
         ),
     ]
 
-    comment_and_rating = complete(
-        context=commit_message,
-        prompt=None,
-        pre_prompt=pre_prompt,
-        examples=examples,
-        model="gpt-3.5-turbo",
-    )
+    comment_and_rating = complete(context=commit_message, prompt=None, pre_prompt=pre_prompt, examples=examples)
 
     rating = re.search(r"\(RATING: (\d)/10\)", comment_and_rating).group(1)
     return int(rating)
 
 
 def get_examples(
-    num_examples, *, path: str = ".", max_log_tokens: int
+    num_examples, *, path: str = ".", max_log_tokens: int, model: str
 ) -> list[tuple[Task, Result]]:
     repo = Repo(path)
     token_count = 0
@@ -176,7 +171,7 @@ def get_examples(
             commit.parents[0] if commit.parents else None, create_patch=True
         )
         diff_str = "\n".join(str(d) for d in diff)
-        this_token_count = toklen(message) + toklen(diff_str) + 20
+        this_token_count = toklen(message, model=model) + toklen(diff_str, model=model) + 20
         if token_count + this_token_count > max_log_tokens:
             continue
         token_count += this_token_count
@@ -187,7 +182,7 @@ def get_examples(
     return examples
 
 
-def get_diffstrs(path: str, max_diff_tokens: int) -> Iterator[str]:
+def get_diffstrs(path: str, max_diff_tokens: int, model: str) -> Iterator[str]:
     """
     Yield diff strings for staged files in the given paths.
 
@@ -201,10 +196,10 @@ def get_diffstrs(path: str, max_diff_tokens: int) -> Iterator[str]:
     diff_chunk = []
     diff_chunk_size = 0
     for d in diff:
-        this_diff_size = toklen(str(d))
+        this_diff_size = toklen(str(d), model=model)
         if this_diff_size > max_diff_tokens:
             # If a single diff is too large, truncate it and yield it separately
-            yield tokclip(str(d), max_diff_tokens, keep="right")
+            yield tokclip(str(d), max_diff_tokens, keep="right", model=model)
             continue
         diff_chunk_size += this_diff_size
         if diff_chunk_size > max_diff_tokens:
@@ -230,13 +225,13 @@ def make_commit_message(
     """Return a commit message based on the given diff."""
     # Set the GIT_DIFF_OPTS environment variable to change the number of lines of context shown in the diff.
     os.environ["GIT_DIFF_OPTS"] = f"-u{num_lines_context}"
-    diffstrs = list(get_diffstrs(path=path, max_diff_tokens=max_diff_tokens))
+    diffstrs = list(get_diffstrs(path=path, max_diff_tokens=max_diff_tokens, model=model))
     if use_builtin_examples:
         examples = make_builtin_examples()
     else:
         examples = []
     examples.extend(
-        get_examples(num_examples, path=path, max_log_tokens=max_log_tokens)
+        get_examples(num_examples, path=path, max_log_tokens=max_log_tokens, model=model)
     )
     if len(diffstrs) == 1:
         return complete(

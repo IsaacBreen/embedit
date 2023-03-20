@@ -1,15 +1,17 @@
+from pathlib import Path
+
 from attrs import define
 
 
 @define(frozen=True)
 class TextFile:
-    path: str
+    path: str | Path
     contents: str
 
 
 @define(frozen=True)
 class TextFileFragment:
-    path: str
+    path: str | Path
     contents: str
     start_line: int
 

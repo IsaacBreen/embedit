@@ -1,4 +1,6 @@
 import pathlib
+from functools import partial
+from typing import Callable
 from typing import Optional
 from typing import Sequence
 
@@ -37,7 +39,7 @@ def simple_transform_files(
     if max_chunk_len is None:
         chunks = [files]
     else:
-        chunks = simple_transform_files_get_chunks(files, max_chunk_len)
+        chunks = simple_transform_files_get_chunks(files, max_chunk_len, partial(toklen, model=model))
 
     results = []
     for chunk_files in chunks:
@@ -49,7 +51,7 @@ def simple_transform_files(
     wrapup(results, output_dir, yes)
 
 
-def simple_transform_files_get_chunks(files: Sequence[str], max_chunk_len: int):
+def simple_transform_files_get_chunks(files: Sequence[str], max_chunk_len: int, toklen: Callable[[str], int]) -> list[list[str]]:
     # Add as many files as possible while keeping the total length of the markdown representation below
     # max_chunk_len tokens
     chunk_strings = []

@@ -12,10 +12,10 @@ delegatefn = "^0.3.4"
 rich = "^13.0.0"
 dir2md = "^0.2.1"
 gitpython = "^3.1.30"
-tiktoken = "^0.1.2"
 tenacity = "^8.1.0"
 numpy = "^1.24.2"
 openai = "^0.27.2"
+tiktoken = "^0.3.2"
 
 
 [build-system]
