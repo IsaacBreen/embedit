@@ -26,7 +26,7 @@ def simple_transform_files(
     output_dir: str,
     max_chunk_len: Optional[int] = 1600,
     yes: bool = False,
-    engine: str = "code-davinci-002",
+    model: str = "gpt-3.5-turbo",
     verbose: bool = False,
 ):
     """
@@ -43,7 +43,7 @@ def simple_transform_files(
     results = []
     for chunk_files in chunks:
         result = simple_transform_files_execute_chunk(
-            engine, chunk_files, pre_prompt, prompt, verbose
+            model, chunk_files, pre_prompt, prompt, verbose
         )
         results.extend(result)
 
@@ -74,7 +74,7 @@ def simple_transform_files_get_chunks(files: Sequence[str], max_chunk_len: int):
 
 
 def simple_transform_files_execute_chunk(
-    engine: str, files: Sequence[TextFile], pre_prompt: str, prompt: str, verbose: bool
+    model: str, files: Sequence[TextFile], pre_prompt: str, prompt: str, verbose: bool
 ) -> list[TextFile]:
     # Transform all files at once
     markdown = "\n".join(dir2md(*files))
@@ -82,7 +82,7 @@ def simple_transform_files_execute_chunk(
         context=markdown,
         prompt=prompt,
         pre_prompt=pre_prompt,
-        engine=engine,
+        model=model,
         verbose=verbose,
     )
     result_files: list[TextFile] = list(md2dir(result_markdown))

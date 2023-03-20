@@ -153,7 +153,7 @@ def rate_commit_message(commit_message: str) -> int:
         prompt=None,
         pre_prompt=pre_prompt,
         examples=examples,
-        engine="text-davinci-003",
+        model="gpt-3.5-turbo",
     )
 
     rating = re.search(r"\(RATING: (\d)/10\)", comment_and_rating).group(1)
@@ -221,7 +221,7 @@ def make_commit_message(
     max_log_tokens: int = 1400,
     max_diff_tokens: int = 1400,
     max_output_tokens: int = 400,
-    engine: str = "code-davinci-002",
+    model: str = "gpt-3.5-turbo",
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
@@ -246,7 +246,7 @@ def make_commit_message(
             examples=examples,
             pre_prompt=pre_prompt_commit,
             max_output_tokens=max_output_tokens,
-            engine=engine,
+            model=model,
             verbose=verbose,
         ).strip()
     else:
@@ -260,7 +260,7 @@ def make_commit_message(
                 examples=examples,
                 pre_prompt=pre_prompt_commit,
                 max_output_tokens=max_output_tokens,
-                engine=engine,
+                model=model,
                 verbose=verbose,
             ).strip()
             messages.append(message)
@@ -281,7 +281,7 @@ def make_commit_message(
             examples=combine_examples,
             pre_prompt=default_pre_prompt,
             max_output_tokens=max_output_tokens,
-            engine=engine,
+            model=model,
             verbose=verbose,
         ).strip()
         return combined_message

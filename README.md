@@ -55,8 +55,7 @@ You could. But transforming each file independently could lead to inconsistent b
 - `--transformation_fn`: The function to apply on the files.
 - `--output_dir` : The directory to save the transformed files.
 - `--yes`: Don't prompt before creating or overwriting files.
-- `--engine`: The OpenAI API engine to use.
-  - Defaults to 'text-davinci-003'; however, if you have access to "code-davinci-002", I recommend using that instead.
+- `--model`: The OpenAI API model to use.
 - `--verbose`: Whether to print verbose output.
 - `--max_chunk_len`: The maximum length (in characters) of chunks to pass to the OpenAI API.
 
@@ -84,7 +83,7 @@ I haven't tried to add `commit-msg` as a git hook, but I imagine it would work.
 - `--max-log-tokens`: The maximum number of tokens to include in the commit message.
 - `--max-diff-tokens`: The maximum number of tokens to include in the diff.
 - `--max-output-tokens`: The maximum number of tokens to include in the OpenAI API output.
-- `--engine`: The OpenAI API engine to use.
+- `--model`: The OpenAI API model to use.
 - `--num-examples`: The number of examples to use.
 - `--use-builtin-examples`: Whether to use the built-in examples.
 - `--hint`: A hint to pass to the OpenAI API.
@@ -92,10 +91,10 @@ I haven't tried to add `commit-msg` as a git hook, but I imagine it would work.
 - `--git-params`: Keyword arguments to pass to the git commit command.
 
 
-For example, the below command will generate a commit message using `code-davinci-002`, passing a hint that the document parameters have been updated, and will use not any of your previous commits as examples. The latter option is useful if your past commit messages have suffered *neglect*.
+For example, the below command will generate a commit message using `gpt-3.5-turbo`, passing a hint that the document parameters have been updated, and will use not any of your previous commits as examples. The latter option is useful if your past commit messages have suffered *neglect*.
 
 ```bash
-embedit autocommit --engine "code-davinci-002" --hint "doc params" --num-examples 0
+embedit autocommit --model "gpt-3.5-turbo" --hint "doc params" --num-examples 0
 ```
 ## Tips
 
@@ -113,7 +112,7 @@ Bear in mind that the behavior of the `*` and `**` wildcards may vary depending 
 I like to use the following alias, `qc` (quick commit) to automatically generate and commit changes:
 
 ```bash
-alias qc="embedit autocommit --num-examples 0 --engine \"code-davinci-002\""
+alias qc="embedit autocommit --num-examples 0 --model \"gpt-3.5-turbo\""
 ```
 
 Example usage:

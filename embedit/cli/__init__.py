@@ -98,7 +98,7 @@ def transform(
     output_dir: str = "out",
     max_chunk_len: Optional[int] = None,
     yes: bool = None,
-    engine: str = "code-davinci-002",
+    model: str = "gpt-3.5-turbo",
     verbose: bool = False,
 ):
     """
@@ -109,7 +109,7 @@ def transform(
     :param output_dir: Directory to save the transformed files.
     :param max_chunk_len: Maximum length of chunks to pass to the OpenAI API.
     :param yes: Whether to prompt before creating or overwriting files.
-    :param engine: The OpenAI API engine to use. Defaults to 'code-davinci-002'; however, if you have access to "code-davinci-002", I recommend using that instead.
+    :param model: The OpenAI API model to use. Defaults to 'gpt-3.5-turbo'; however, if you have access to "gpt-3.5-turbo", I recommend using that instead.
     :param verbose: Print verbose output.
     :return: Output of the OpenAI API.
     """
@@ -120,7 +120,7 @@ def transform(
         output_dir=output_dir,
         max_chunk_len=max_chunk_len,
         yes=yes,
-        engine=engine,
+        model=model,
         verbose=verbose,
     )
 
@@ -130,7 +130,7 @@ def commit_msg(
     max_log_tokens: int = 1400,
     max_diff_tokens: int = 1400,
     max_output_tokens: int = 400,
-    engine: str = "code-davinci-002",
+    model: str = "gpt-3.5-turbo",
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
@@ -143,7 +143,7 @@ def commit_msg(
     :param max_log_tokens: The maximum number of tokens to include in the commit message.
     :param max_diff_tokens: The maximum number of tokens to include in the diff.
     :param max_output_tokens: The maximum number of tokens to include in the OpenAI API output.
-    :param engine: The OpenAI API engine to use.
+    :param model: The OpenAI API model to use.
     :param num_examples: The number of examples to use.
     :param use_builtin_examples: Whether to use the built-in examples.
     :param num_lines_context: The number of lines of context to include in the diff.
@@ -156,7 +156,7 @@ def commit_msg(
         max_log_tokens=max_log_tokens,
         max_diff_tokens=max_diff_tokens,
         max_output_tokens=max_output_tokens,
-        engine=engine,
+        model=model,
         num_examples=num_examples,
         use_builtin_examples=use_builtin_examples,
         hint=hint,
@@ -170,7 +170,7 @@ def autocommit(
     max_log_tokens: int = 1400,
     max_diff_tokens: int = 1400,
     max_output_tokens: int = 400,
-    engine: str = "code-davinci-002",
+    model: str = "gpt-3.5-turbo",
     num_examples: int = 10,
     use_builtin_examples: bool = True,
     hint: Optional[str] = None,
@@ -184,7 +184,7 @@ def autocommit(
     :param max_log_tokens: The maximum number of tokens to include in the commit message.
     :param max_diff_tokens: The maximum number of tokens to include in the diff.
     :param max_output_tokens: The maximum number of tokens to include in the OpenAI API output.
-    :param engine: The OpenAI API engine to use.
+    :param model: The OpenAI API model to use.
     :param num_examples: The number of examples to use.
     :param use_builtin_examples: Whether to use the built-in examples.
     :param hint: A hint to pass in the prompt.
@@ -198,7 +198,7 @@ def autocommit(
         max_log_tokens=max_log_tokens,
         max_diff_tokens=max_diff_tokens,
         max_output_tokens=max_output_tokens,
-        engine=engine,
+        model=model,
         num_examples=num_examples,
         use_builtin_examples=use_builtin_examples,
         hint=hint,
