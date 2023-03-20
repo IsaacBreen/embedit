@@ -72,17 +72,21 @@ def response_did_finished(response: str) -> bool:
     return end_response_token in response
 
 
-@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
 @delegate(openai.Completion.create)
 def openai_create_raw(**kwargs) -> str:
     kwargs.setdefault("model", "gpt-3.5-turbo")
     kwargs["messages"] = [{"role": "system", "content": "You are a text completion engine."},
                           {"role": "user", "content": kwargs.pop("prompt")}]
-    return openai.ChatCompletion.create(**kwargs).choices[0].message.content
+    logger.debug(f"Sending request to OpenAI: {kwargs}")
+    response = openai.ChatCompletion.create(**kwargs).choices[0].message.content
+    logger.debug(f"Received response from OpenAI: {response}")
+    return response
 
 
 @delegate(openai.Completion.create)
 def openai_create(model: str, **kwargs) -> str:
+    if "engine" in kwargs:
+        raise ValueError("The engine argument is not supported. Use the model argument instead.")
     return openai_create_raw(model=model, **kwargs)
 
 
@@ -192,7 +196,6 @@ def complete(
     return text
 
 
-@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
 def get_embedding(text: str, model="text-embedding-ada-002") -> list[float]:
     # replace newlines, which can negatively affect performance.
     text = text.replace("\n", " ")

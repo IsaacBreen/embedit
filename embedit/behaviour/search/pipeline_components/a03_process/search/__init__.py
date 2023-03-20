@@ -32,7 +32,7 @@ def find_similar_fragments(
     embedding = embedded_text.embedding
     # Find the most similar fragments
     similarities = [cosine_similarity(embedding, fragment.embedding) for fragment in embedded_fragments]
-    print(
+    logger.info(
         f"Similarity statistics: min={min(similarities):.3f}, max={max(similarities):.3f}, mean={np.mean(similarities):.3f}, median={np.median(similarities):.3f}, std={np.std(similarities):.3f}"
     )
     # Return the most similar fragments

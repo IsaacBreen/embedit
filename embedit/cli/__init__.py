@@ -36,7 +36,7 @@ def resolve_model(model: Optional[str], engine: Optional[str]) -> str:
     if engine is not None:
         model = engine
     if model is None:
-        model = "gpt-3.5-turbo"
+        model = os.environ.get("OPENAI_CHAT_MODEL", "gpt-3.5-turbo")
     return model
 
 
@@ -65,7 +65,7 @@ def search(
     """
 
     if verbose:
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
     directories = [file for file in files if pathlib.Path(file).is_dir()]
     if directories:
@@ -174,7 +174,7 @@ def commit_msg(
     :return: A commit message.
     """
     if verbose:
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
     model = resolve_model(model, engine)
 
@@ -222,7 +222,7 @@ def autocommit(
     :return: A commit message.
     """
     if verbose:
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
     model = resolve_model(model, engine)
 
